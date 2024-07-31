@@ -1,5 +1,17 @@
-
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
+
+
+keyboard_hello = VkKeyboard(one_time=True)
+keyboard_hello.add_button('Информация из Wiki', color=VkKeyboardColor.POSITIVE)
+keyboard_hello.add_line()
+keyboard_hello.add_button('Получить интереный факт', color=VkKeyboardColor.POSITIVE)
+keyboard_hello.add_line()
+keyboard_hello.add_button('Заметки', color=VkKeyboardColor.POSITIVE)
+keyboard_hello.add_line()
+keyboard_hello.add_button('Информация о погоде', color=VkKeyboardColor.POSITIVE)
+keyboard_hello.add_line()
+keyboard_hello.add_openlink_button('GitHub проекта', 'https://github.com/VoblaSuperFish/VkBot')
 
 
 
@@ -19,3 +31,6 @@ class SendingMessageUser:
             return False
 
 
+    def write_message_hello(self, sender_id, message):
+        """Функция для приветствия пользователя + добавление кнопок"""
+        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, 'random_id' : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
