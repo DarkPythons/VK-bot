@@ -14,6 +14,7 @@ class BaseConfigSettingInFile(BaseSettings):
 
 class BaseSettingsDataBase(BaseConfigSettingInFile):
     DB_URL:str = Field(min_length=3, max_length=100, default='database.db')
+    ECHO_QUERY_SQL:bool = Field(default=False)
 
 class BaseSettingApp(BaseConfigSettingInFile):
     TOKEN_BOT:str = Field(min_length=5, max_length=500)
