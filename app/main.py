@@ -1,11 +1,11 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from config import BaseSettingApp
-from utils import SendingMessageUser, get_info_from_wiki
+from utils import SendingMessageUser
 from database.db import create_table,drop_table,get_session #type:ignore
 from text import hello_user_text,help_user_text,no_command_search_text, wiki_start_text,exit_all_process_text,no_exit_text #type: ignore
 from database.orm import UsersOrm
-
+from handlers import handler_wiki, handler_weather
 
 user_orm = UsersOrm(get_session())
 
@@ -45,6 +45,9 @@ try:
                     send_func.wiki_start_text(sender_id,  wiki_start_text)
                     user_orm.update_status_user_wiki(sender_id, status=True)
 
+                elif sender_messages.lower() in ['/weathers', 'информация о погоде', '/weather', 'погода']:
+                    pass
+
 
                 elif sender_messages.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
@@ -61,16 +64,10 @@ try:
                     send_func.write_message_all_exit(sender_id, exit_all_process_text)
                 #Если пользователь в запросе ввода Wiki данных
                 elif user_from_db.in_process_wiki:
-                    total_info_from_wiki = get_info_from_wiki(sender_messages)
-                    if total_info_from_wiki['status'] == 200:
-                        send_func.write_message(sender_id, total_info_from_wiki['content'])
-                    elif total_info_from_wiki['status'] == 301:
-                        send_func.write_message(sender_id, "По вашему запросу было найдено несколько возможных значений, уточните ваш запрос: " + total_info_from_wiki['content'])
-                    else:
-                        send_func.write_message(sender_id, 'По вашему запросу нет совпадений.')
+                    handler_wiki(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
                 #Если пользователь в запросе ввода города для получения погоды
                 elif user_from_db.in_process_weather:
-                    pass
+                    handler_weather(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
 
 
 

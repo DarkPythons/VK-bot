@@ -19,3 +19,15 @@ class BaseSettingsDataBase(BaseConfigSettingInFile):
 class BaseSettingApp(BaseConfigSettingInFile):
     TOKEN_BOT:str = Field(min_length=5, max_length=500)
     
+
+#Здесь может быть любой headers, главное валидный для requests
+headers = {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.106 Safari/537.36"
+    }
+
+class BaseConnectSettingsAPI(BaseConfigSettingInFile):
+    headers:dict = Field(default=headers)
+    #Этот токен можно получить, пройдя легкую регистрацию: https://openweathermap.org/
+    TOKEN_WEATHER:str = Field(min_length=3, max_length=400)
+    

@@ -1,6 +1,10 @@
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 import wikipedia
+import requests
+
+from config import BaseConnectSettingsAPI
+
 wikipedia.set_lang('ru')
 
 keyboard_hello = VkKeyboard(one_time=True)
@@ -80,3 +84,10 @@ def get_info_from_wiki(search_text):
             return {'status' : 301, 'content' : ", ".join(search_list)}
         return {'status' : 404, 'content' : None}
         
+connect_setting = BaseConnectSettingsAPI()
+
+def info_from_api_weather(search_text):
+    city = search_text
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&lang=ru&units=metric&appid={connect_setting.TOKEN_WEATHER}'
+    json_response = requests.get(url, headers=connect_setting.headers)
+    print(json_response)
