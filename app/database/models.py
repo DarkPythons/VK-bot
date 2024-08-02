@@ -13,12 +13,19 @@ class Base(DeclarativeBase):
     pass
 
 
-class User(Base):
+class Users(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     vk_id: Mapped[int] = mapped_column(unique=True, nullable=False)
     in_process: Mapped[bool] = mapped_column(default=False, nullable=False)
+    in_process_wiki: Mapped[bool] = mapped_column(default=False, nullable=False)
+    in_process_weather: Mapped[bool] = mapped_column(default=False, nullable=False)
+    in_process_number: Mapped[bool] = mapped_column(default=False, nullable=False)
+
+    in_process_create_note: Mapped[bool] = mapped_column(default=False, nullable=False)
+    in_process_delete_note: Mapped[bool] = mapped_column(default=False, nullable=False)
+
 
     def __repr__(self) -> str:
         return f"Users(vk_id: {self.vk_id})"
