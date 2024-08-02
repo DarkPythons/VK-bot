@@ -17,7 +17,7 @@ class UsersOrm:
     def get_user_from_db(self, user_id):
         query = select(Users).where(Users.vk_id == user_id)
         result = self.session.execute(query)
-        return result.all()
+        return result.mappings().first()
 
     def update_status_user_wiki(self, user_id, *, status: bool):
         query = update(Users).values(in_process=True, in_process_wiki=status).where(Users.vk_id == user_id) 

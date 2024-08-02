@@ -10,6 +10,7 @@ python = "3.12"
 vk-api = "11.9.9"
 pydantic-settings = "2.3.4"
 sqlalchemy = "2.0.31"
+wikipedia = "^1.4.0"
 
 
 [build-system]
