@@ -11,3 +11,4 @@ def handler_wiki(*, send_func, sender_id, sender_messages):
 
 def handler_weather(*, send_func,sender_id:int,sender_messages:str):
     info_from_weather = info_from_api_weather(sender_messages)
+    send_func.write_message(sender_id, info_from_weather)

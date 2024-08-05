@@ -1,14 +1,19 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
+
 from config import BaseSettingApp
 from utils import SendingMessageUser
 from database.db import create_table,drop_table,get_session #type:ignore
-from text import hello_user_text,help_user_text,no_command_search_text, wiki_start_text,exit_all_process_text,no_exit_text #type: ignore
+from text import (
+    hello_user_text,help_user_text,no_command_search_text, 
+    wiki_start_text,exit_all_process_text,no_exit_text,
+    weather_start_text
+    ) #type: ignore
 from database.orm import UsersOrm
 from handlers import handler_wiki, handler_weather
 
-user_orm = UsersOrm(get_session())
 
+user_orm = UsersOrm(get_session())
 
 setting_app = BaseSettingApp()
 
@@ -46,7 +51,8 @@ try:
                     user_orm.update_status_user_wiki(sender_id, status=True)
 
                 elif sender_messages.lower() in ['/weathers', 'информация о погоде', '/weather', 'погода']:
-                    pass
+                    send_func.weather_start_text(sender_id, weather_start_text)
+                    user_orm.update_status_user_weather(sender_id, status=True)
 
 
                 elif sender_messages.lower() in ['/stop', 'отмена']:

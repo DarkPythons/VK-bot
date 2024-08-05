@@ -24,6 +24,11 @@ class UsersOrm:
         self.session.execute(query)
         self.session.commit()
 
+    def update_status_user_weather(self, user_id:int, *, status: bool):
+        query = update(Users).values(in_process=True, in_process_weather=status).where(Users.vk_id == user_id)
+        self.session.execute(query)
+        self.session.commit()
+
     def update_full_process(self, user_id, *, full_status: bool):
         query = update(Users).values(
         in_process=full_status,
