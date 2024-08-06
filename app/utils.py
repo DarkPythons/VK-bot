@@ -1,36 +1,15 @@
-from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 import wikipedia
 import requests
 import datetime
 
+from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit
+from text import code_smile, no_found_city_text, exceptionn_500_text
 from config import BaseConnectSettingsAPI
 
 connect_setting = BaseConnectSettingsAPI()
 
 wikipedia.set_lang('ru')
-
-keyboard_hello = VkKeyboard(one_time=True)
-keyboard_hello.add_button('Информация из Wiki', color=VkKeyboardColor.POSITIVE)
-keyboard_hello.add_line()
-keyboard_hello.add_button('Получить интереный факт', color=VkKeyboardColor.POSITIVE)
-keyboard_hello.add_line()
-keyboard_hello.add_button('Заметки', color=VkKeyboardColor.POSITIVE)
-keyboard_hello.add_line()
-keyboard_hello.add_button('Информация о погоде', color=VkKeyboardColor.POSITIVE)
-keyboard_hello.add_line()
-keyboard_hello.add_openlink_button('GitHub проекта', 'https://github.com/VoblaSuperFish/VkBot')
-
-
-keyboard_no_command = VkKeyboard(one_time=True)
-keyboard_no_command.add_button('Помощь', color=VkKeyboardColor.POSITIVE)
-keyboard_no_command.add_line()
-#Ссылка поддержки может быть любой
-keyboard_no_command.add_openlink_button('Поддержка', link='https://github.com/VoblaSuperFish/VkBot')
-
-keyboard_exit = VkKeyboard(one_time=False)
-keyboard_exit.add_button('Отмена', color=VkKeyboardColor.NEGATIVE)
-
 
 
 class SendingMessageUser:
@@ -38,6 +17,7 @@ class SendingMessageUser:
         self.authorise = authorise
 
     def write_message(self, sender_id, message):
+        """Функция отправки сообщений"""
         self.authorise.method(
             'messages.send', 
             {'user_id' : sender_id, 'message' : message, 'random_id' : get_random_id()}
@@ -50,7 +30,6 @@ class SendingMessageUser:
             return True
         except:
             return False
-
 
     def write_message_hello(self, sender_id, message):
         """Функция для приветствия пользователя + добавление кнопок"""
@@ -77,8 +56,8 @@ class SendingMessageUser:
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()})
 
 
-
 def get_info_from_wiki(search_text):
+    """Функци получения информации из Wiki по заданному слову"""
     try:
         #Получение страницы в википедии по запросу
         full_content = wikipedia.page(search_text)
@@ -91,35 +70,21 @@ def get_info_from_wiki(search_text):
             return {'status' : 301, 'content' : ", ".join(search_list)}
         return {'status' : 404, 'content' : None}
         
-code_smile:dict = {
-    "Clear": "Ясно \U00002600",
-    "Clouds": "Облачно \U00002601",
-    "Rain": "Дождь \U00002614",
-    "Drizzle": "Дождь \U00002614",
-    "Thunderstorm": "Гроза \U000026A1",
-    "Snow": "Снег \U0001F328",
-    "Mist": "Туман \U0001F32B"
-}
 
 def smile_for_weather(weather_street):
+    """В зависимости от уличной погоды функция выбирает смайлик"""
     if weather_street in code_smile:
         return code_smile[weather_street]
     else:
         return "Смайлика нет :("
-
-
-
-def info_from_api_weather(search_text):
-    city = search_text
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&lang=ru&units=metric&appid=\
-{connect_setting.TOKEN_WEATHER}'
-    json_response = requests.get(url, headers=connect_setting.headers)
-    json_response = json_response.json()
+    
+def get_full_response_text(json_response):
+    """Преобразование ответа от API погоды из json в текст"""
     time_sunrise = datetime.datetime.fromtimestamp(json_response['sys']['sunrise'])
     time_sunset = datetime.datetime.fromtimestamp(json_response['sys']['sunset'])
     time_day = time_sunset - time_sunrise
-
     itog_response = f"""
+    Полученная информация:
     Город: {json_response['name']}
     Температура: {json_response['main']['temp']} °C
     Влажность: {json_response['main']['humidity']} %
@@ -132,3 +97,18 @@ def info_from_api_weather(search_text):
     """
     return itog_response
 
+def info_from_api_weather(search_text):
+    """Функция получения информации о погоде из API"""
+    try:
+        city = search_text
+        url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&lang=ru&units=metric&appid={connect_setting.TOKEN_WEATHER}'
+        response = requests.get(url, headers=connect_setting.headers)
+        if response.status_code in [200,201]:
+            text_response = get_full_response_text(response.json())
+            return {'status' : 200, 'content' : text_response}
+        elif response.status_code == 404:
+            return {'status' : 404, 'content' : no_found_city_text}
+        return {"status" : 500, 'content' : exceptionn_500_text}
+    except ValueError as Error:
+        print(Error)
+        return {"status" : 500, 'content' : exceptionn_500_text}

@@ -54,7 +54,6 @@ try:
                     send_func.weather_start_text(sender_id, weather_start_text)
                     user_orm.update_status_user_weather(sender_id, status=True)
 
-
                 elif sender_messages.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
                     send_func.write_message_all_exit(sender_id, no_exit_text)
