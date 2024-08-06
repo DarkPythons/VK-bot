@@ -32,6 +32,12 @@ class UsersOrm:
         query = update(Users).values(in_process=True, in_process_weather=status).where(Users.vk_id == user_id)
         self.session.execute(query)
         self.session.commit()
+        
+    def update_status_user_number(self, user_id:int, *, status: bool):
+        """Обновление статуса пользователя, на ожидание ввода числа для получения факта"""
+        query = update(Users).values(in_process=True, in_process_number=status).where(Users.vk_id == user_id)
+        self.session.execute(query)
+        self.session.commit()
 
     def update_full_process(self, user_id, *, full_status: bool):
         """Обновление всех статусов ожидания ввода от пользователя, в основном используется

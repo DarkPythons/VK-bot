@@ -43,18 +43,30 @@ class SendingMessageUser:
         """Если пользователь ввел команду, которой пока нет у бота"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_no_command.get_keyboard()})
 
-    def wiki_start_text(self, sender_id, message):
-        """Если пользователь захотел получить информацию из Wiki"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()})
+
 
     def write_message_all_exit(self, sender_id, message):
         """Если пользователь ввел Отмена или /stop"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
     
-    def weather_start_text(self, sender_id, message):
+
+
+
+    #Объеденить три функции в одну (DRY)
+    def wiki_start_message(self, sender_id, message):
+        """Если пользователь захотел получить информацию из Wiki"""
+        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()})
+
+    def weather_start_message(self, sender_id, message):
         """Если пользователь захотел получить информацию о погоде"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()})
 
+    def number_start_message(self, sender_id, message):
+        """Если пользователь захотел получить интересный факт о числе"""
+        self.authorise.method('messages.send', {
+            'user_id' : sender_id, 'message' : message,
+            'random_id' : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()
+        })
 
 def get_info_from_wiki(search_text):
     """Функци получения информации из Wiki по заданному слову"""

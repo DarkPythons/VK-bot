@@ -20,3 +20,7 @@ def handler_weather(*, send_func,sender_id:int,sender_messages:str):
         send_func.write_message(sender_id, info_from_weather['content'])
     else:
         send_func.write_message(sender_id, info_from_weather['content'])
+
+def handler_number(*, send_func, sender_id:int, sender_messages:str):
+    """Обработчик запроса к функции запроса информации об числе"""
+    pass

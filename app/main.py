@@ -7,10 +7,10 @@ from database.db import create_table,drop_table,get_session #type:ignore
 from text import (
     hello_user_text,help_user_text,no_command_search_text, 
     wiki_start_text,exit_all_process_text,no_exit_text,
-    weather_start_text
+    weather_start_text,number_start_text
     ) #type: ignore
 from database.orm import UsersOrm
-from handlers import handler_wiki, handler_weather
+from handlers import handler_wiki, handler_weather, handler_number
 
 
 user_orm = UsersOrm(get_session())
@@ -25,7 +25,6 @@ send_func = SendingMessageUser(authorise)
 create_table()
 
 try:
-    #Прослушивание сообщений от бота
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
             sender_messages = event.text
@@ -36,7 +35,6 @@ try:
                 user_orm.create_user_in_db(sender_id)
                 user_from_orm = user_orm.get_user_from_db(sender_id)
             user_from_db = user_from_orm['Users']
-            print(user_from_db)
             #Если пользователь не в ожидании запроса ввода
             if not user_from_db.in_process:
                 if sender_messages.lower() in ['старт', 'привет', 'hello', '/start']:
@@ -47,12 +45,17 @@ try:
                     send_func.write_message_help(sender_id, help_user_text)
 
                 elif sender_messages.lower() in ['/wiki', 'вики', 'информация из wiki']:
-                    send_func.wiki_start_text(sender_id,  wiki_start_text)
+                    send_func.wiki_start_message(sender_id,  wiki_start_text)
                     user_orm.update_status_user_wiki(sender_id, status=True)
 
                 elif sender_messages.lower() in ['/weathers', 'информация о погоде', '/weather', 'погода']:
-                    send_func.weather_start_text(sender_id, weather_start_text)
+                    send_func.weather_start_message(sender_id, weather_start_text)
                     user_orm.update_status_user_weather(sender_id, status=True)
+
+                elif sender_messages.lower() in ['/numbers', "получить интереный факт", '/number']:
+                    """Если пользователь захотел получить интересный факт о числе"""
+                    send_func.number_start_message(sender_id, number_start_text)
+                    user_orm.update_status_user_number(sender_id, status=True)
 
                 elif sender_messages.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
@@ -67,13 +70,18 @@ try:
                     """Если пользователь нажал кнопку отмена, в любом режиме ввода"""
                     user_orm.update_full_process(sender_id, full_status=False)
                     send_func.write_message_all_exit(sender_id, exit_all_process_text)
-                #Если пользователь в запросе ввода Wiki данных
+                
                 elif user_from_db.in_process_wiki:
+                    """Если пользователь в запросе ввода Wiki данных"""
                     handler_wiki(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
-                #Если пользователь в запросе ввода города для получения погоды
+                
                 elif user_from_db.in_process_weather:
+                    """Если пользователь в запросе ввода города для получения погоды"""
                     handler_weather(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
 
+                elif user_from_db.in_process_number:
+                    """Если пользователь в запросе воода цифры для получения факта"""
+                    handler_number(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
 
 
                 #Если пользователь в запросе ввода числа
