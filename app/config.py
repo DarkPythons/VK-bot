@@ -18,6 +18,7 @@ class BaseSettingsDataBase(BaseConfigSettingInFile):
 
 class BaseSettingApp(BaseConfigSettingInFile):
     TOKEN_BOT:str = Field(min_length=5, max_length=500)
+    PROGRAM_IN_DEBUG:bool = Field(default=True)
     
 
 #Здесь может быть любой headers, главное валидный для requests

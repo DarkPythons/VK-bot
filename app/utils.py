@@ -4,7 +4,7 @@ import requests
 import datetime
 
 from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit
-from text import code_smile, no_found_city_text, exceptionn_500_text
+from text import code_smile, no_found_city_text, exceptionn_500_text,user_write_no_number_text
 from config import BaseConnectSettingsAPI
 
 connect_setting = BaseConnectSettingsAPI()
@@ -44,13 +44,10 @@ class SendingMessageUser:
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_no_command.get_keyboard()})
 
 
-
     def write_message_all_exit(self, sender_id, message):
         """Если пользователь ввел Отмена или /stop"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
     
-
-
 
     #Объеденить три функции в одну (DRY)
     def wiki_start_message(self, sender_id, message):
@@ -73,14 +70,16 @@ def get_info_from_wiki(search_text):
     try:
         #Получение страницы в википедии по запросу
         full_content = wikipedia.page(search_text)
-        response = full_content.content[:300] + "...\n" + "Ссылка на статью: " + full_content.url
+        response = f"{full_content.content[:300]}...\nСсылка на статью: {full_content.url}"
+        #response = full_content.content[:300] + "...\n" + "Ссылка на статью: " + full_content.url
         return {'status' : 200, 'content' : response}
     except:
         search_list = wikipedia.search(search_text, results=5)
         if len(search_list) > 0:   
             #Возвращаем строку возможныx значений, которые имел ввиду пользователь
-            return {'status' : 301, 'content' : ", ".join(search_list)}
-        return {'status' : 404, 'content' : None}
+            return {'status' : 301, 'content' : "По вашему запросу было найдено несколько возможных\
+значений, уточните ваш запрос: " + ", ".join(search_list)}
+        return {'status' : 404, 'content' : 'По вашему запросу нет совпадений.'}
         
 
 def smile_for_weather(weather_street):
@@ -121,6 +120,20 @@ def info_from_api_weather(search_text):
         elif response.status_code == 404:
             return {'status' : 404, 'content' : no_found_city_text}
         return {"status" : 500, 'content' : exceptionn_500_text}
-    except ValueError as Error:
-        print(Error)
+    except Exception as Error:
         return {"status" : 500, 'content' : exceptionn_500_text}
+
+
+def info_from_api_numbers(search_text: str):
+    """Функция получения факта об числе из API"""
+    try:
+        number = search_text
+        url = f"http://numbersapi.com/{number}"
+        response = requests.get(url, headers=connect_setting.headers)
+        if response.status_code in [200,201]:
+            content_response = response.text
+            return {'status' : 200, 'content' : content_response}
+        elif response.status_code == 404:
+            return {'status' : 404, 'content' : user_write_no_number_text}
+    except Exception as Error:
+        return {'status' : 500, 'content' : exceptionn_500_text}

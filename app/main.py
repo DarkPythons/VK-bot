@@ -22,13 +22,20 @@ longpoll = VkLongPoll(authorise)
 
 send_func = SendingMessageUser(authorise)
 
-create_table()
+try:
+    create_table()
+except Exception as Error:
+    print('Ошибка создания базы данных: ' + str(Error))
 
 try:
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
             sender_messages = event.text
             sender_id = event.user_id
+            #Остановка программы (только если бот в режиме разработки)
+            if sender_messages == '/debug_stop':
+                if setting_app.PROGRAM_IN_DEBUG:
+                    raise Exception
 
             user_from_orm = user_orm.get_user_from_db(sender_id)
             if not user_from_orm:
@@ -91,4 +98,6 @@ try:
 except Exception as error:
     print('Ошибка приложения: ' + str(error))
 finally:
-    drop_table()
+    """Удаление таблиц базы данных, если приложение в режиме разработки"""
+    if setting_app.PROGRAM_IN_DEBUG:
+        drop_table()
