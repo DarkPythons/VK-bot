@@ -20,3 +20,16 @@ keyboard_no_command.add_openlink_button('Поддержка', link='https://gith
 
 keyboard_exit = VkKeyboard(one_time=False)
 keyboard_exit.add_button('Отмена', color=VkKeyboardColor.NEGATIVE)
+
+
+keyboard_mailing = VkKeyboard(one_time=True)
+keyboard_mailing.add_button('Рассылка напоминания', color=VkKeyboardColor.POSITIVE)
+keyboard_mailing.add_line()
+keyboard_mailing.add_button('Отмена', color=VkKeyboardColor.NEGATIVE)
+
+keyboard_notes = VkKeyboard(one_time=True)
+keyboard_notes.add_button('Добавить заметку', color=VkKeyboardColor.POSITIVE)
+keyboard_notes.add_line()
+keyboard_notes.add_button('Получить свои заметки', color=VkKeyboardColor.PRIMARY)
+keyboard_notes.add_line()
+keyboard_notes.add_button('Удалить заметки', color=VkKeyboardColor.NEGATIVE)

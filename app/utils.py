@@ -3,7 +3,7 @@ import wikipedia
 import requests
 import datetime
 
-from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit
+from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit,keyboard_mailing,keyboard_notes
 from text import code_smile, no_found_city_text, exceptionn_500_text,user_write_no_number_text
 from config import BaseConnectSettingsAPI
 
@@ -48,7 +48,6 @@ class SendingMessageUser:
         """Если пользователь ввел Отмена или /stop"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
     
-
     #Объеденить три функции в одну (DRY)
     def wiki_start_message(self, sender_id, message):
         """Если пользователь захотел получить информацию из Wiki"""
@@ -65,13 +64,26 @@ class SendingMessageUser:
             'random_id' : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()
         })
 
+    def mailing_start_message(self, sender_id, message):
+        """Если супер пользователь захотел сделать рассылку"""
+        self.authorise.method('messages.send', {
+            'user_id' : sender_id, 'message' : message, 
+            'random_id' : get_random_id(), 'keyboard' : keyboard_mailing.get_keyboard()
+        })
+
+    def write_notes_start_message(self, sender_id, message):
+        """Отправка сообщения пользователю, который запросил заметки"""
+        self.authorise.method('messages.send', {
+            'user_id' : sender_id, 'message' : message,
+            'random_id' : get_random_id(), 'keyboard' : keyboard_notes.get_keyboard()
+        })
+
 def get_info_from_wiki(search_text):
     """Функци получения информации из Wiki по заданному слову"""
     try:
         #Получение страницы в википедии по запросу
         full_content = wikipedia.page(search_text)
         response = f"{full_content.content[:300]}...\nСсылка на статью: {full_content.url}"
-        #response = full_content.content[:300] + "...\n" + "Ссылка на статью: " + full_content.url
         return {'status' : 200, 'content' : response}
     except:
         search_list = wikipedia.search(search_text, results=5)

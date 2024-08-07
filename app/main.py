@@ -7,10 +7,11 @@ from database.db import create_table,drop_table,get_session #type:ignore
 from text import (
     hello_user_text,help_user_text,no_command_search_text, 
     wiki_start_text,exit_all_process_text,no_exit_text,
-    weather_start_text,number_start_text
+    weather_start_text,number_start_text,mailing_start_text,
+    after_mailing_text,notes_start_text
     ) #type: ignore
 from database.orm import UsersOrm
-from handlers import handler_wiki, handler_weather, handler_number
+from handlers import handler_wiki, handler_weather, handler_number,handler_mailing
 
 
 user_orm = UsersOrm(get_session())
@@ -64,11 +65,23 @@ try:
                     send_func.number_start_message(sender_id, number_start_text)
                     user_orm.update_status_user_number(sender_id, status=True)
 
+                elif sender_messages.lower() == '/sends':
+                    if user_from_db.is_superuser:
+                        """Если пользователь захотел сделать рассылку + является супер пользователем"""
+                        send_func.mailing_start_message(sender_id, mailing_start_text)
+                        user_orm.update_status_mailing_before(sender_id, status=True)
+                    else:
+                        send_func.write_message_hello(sender_id, 'У вас нет прав на использование этой команды.')
+                elif sender_messages.lower() in ['/notes', 'заметки']:
+                    """Если пользователь захотел получить информацию о заметках"""
+                    send_func.write_notes_start_message(sender_id, notes_start_text)
+
                 elif sender_messages.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
                     send_func.write_message_all_exit(sender_id, no_exit_text)
 
                 else:
+                    """Если команда, которую ввел человек не найдена"""
                     send_func.write_message_no_search(sender_id, no_command_search_text)
 
             #Если пользователь находится в статусе запроса ввода
@@ -90,10 +103,13 @@ try:
                     """Если пользователь в запросе воода цифры для получения факта"""
                     handler_number(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
 
+                elif user_from_db.in_process_mailing:
+                    """Если пользователь ввел сообщение для рассылки"""
+                    list_users_id = user_orm.get_list_vk_id()
+                    handler_mailing(send_func=send_func, sending_text=sender_messages, list_user=list_users_id)
+                    user_orm.update_status_mailing_after(user_id=sender_id, status=False)
+                    send_func.write_message(sender_id, after_mailing_text)
 
-                #Если пользователь в запросе ввода числа
-                elif user_from_db.in_process_number:
-                    pass
 
 except Exception as error:
     print('Ошибка приложения: ' + str(error))
