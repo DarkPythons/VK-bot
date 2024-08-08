@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import ForeignKey, String, Integer, Boolean, create_engine
+from sqlalchemy import ForeignKey, String, Integer, Boolean, create_engine, ForeignKey
 from config import BaseSettingsDataBase
 
 db_setting = BaseSettingsDataBase()
@@ -31,3 +31,11 @@ class Users(Base):
 
     def __repr__(self) -> str:
         return f"Users(vk_id: {self.vk_id})"
+    
+class Notes(Base):
+    __tablename__ = 'note'
+
+    id:  Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    text_note: Mapped[str] = mapped_column()
+
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.vk_id', ondelete='CASCADE'), nullable=False)

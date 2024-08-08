@@ -3,7 +3,7 @@ import wikipedia
 import requests
 import datetime
 
-from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit,keyboard_mailing,keyboard_notes
+from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit,keyboard_mailing,keyboard_notes,keyboard_stopped_input
 from text import code_smile, no_found_city_text, exceptionn_500_text,user_write_no_number_text
 from config import BaseConnectSettingsAPI
 
@@ -76,6 +76,13 @@ class SendingMessageUser:
         self.authorise.method('messages.send', {
             'user_id' : sender_id, 'message' : message,
             'random_id' : get_random_id(), 'keyboard' : keyboard_notes.get_keyboard()
+        })
+
+    def write_notes_add_message(self, sender_id, message):
+        """Отправка сообщения пользователю, про начало добавления заметок"""
+        self.authorise.method('messages.send', {
+            'user_id' : sender_id, 'message' : message,
+            'random_id' : get_random_id(), 'keyboard' : keyboard_stopped_input.get_keyboard()
         })
 
 def get_info_from_wiki(search_text):

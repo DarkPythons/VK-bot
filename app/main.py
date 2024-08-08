@@ -8,7 +8,8 @@ from text import (
     hello_user_text,help_user_text,no_command_search_text, 
     wiki_start_text,exit_all_process_text,no_exit_text,
     weather_start_text,number_start_text,mailing_start_text,
-    after_mailing_text,notes_start_text
+    after_mailing_text,notes_start_text,notes_start_add_text,
+    stopped_write_or_delete_text,no_input_message_text
     ) #type: ignore
 from database.orm import UsersOrm
 from handlers import handler_wiki, handler_weather, handler_number,handler_mailing
@@ -76,9 +77,18 @@ try:
                     """Если пользователь захотел получить информацию о заметках"""
                     send_func.write_notes_start_message(sender_id, notes_start_text)
 
+                elif sender_messages.lower() in ['добавить заметку', '/add_notes']:
+                    """Если пользователь захотел добавить заметку"""
+                    send_func.write_notes_add_message(sender_id, notes_start_add_text)
+                    user_orm.update_status_add_notes(sender_id, status=True)
+
                 elif sender_messages.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
                     send_func.write_message_all_exit(sender_id, no_exit_text)
+
+                elif sender_messages.lower() in ['/stop_input', 'остановить ввод']:
+                    """Если пользователь захотел выйти из режима ввода, когда он в нём не находился"""
+                    send_func.write_message(sender_id, no_input_message_text)
 
                 else:
                     """Если команда, которую ввел человек не найдена"""
@@ -90,7 +100,12 @@ try:
                     """Если пользователь нажал кнопку отмена, в любом режиме ввода"""
                     user_orm.update_full_process(sender_id, full_status=False)
                     send_func.write_message_all_exit(sender_id, exit_all_process_text)
-                
+
+                elif sender_messages.lower() in ['/stop_input', 'остановить ввод']:
+                    """Если пользователь остановил ввод на добавление или удаление заметок"""
+                    user_orm.update_full_process(sender_id, full_status=False)
+                    send_func.write_notes_start_message(sender_id, stopped_write_or_delete_text)
+
                 elif user_from_db.in_process_wiki:
                     """Если пользователь в запросе ввода Wiki данных"""
                     handler_wiki(send_func=send_func, sender_id=sender_id, sender_messages=sender_messages)
@@ -109,6 +124,10 @@ try:
                     handler_mailing(send_func=send_func, sending_text=sender_messages, list_user=list_users_id)
                     user_orm.update_status_mailing_after(user_id=sender_id, status=False)
                     send_func.write_message(sender_id, after_mailing_text)
+
+                elif user_from_db.in_process_create_note:
+                    """Если пользователь ввел заметку, которую нужно добавить"""
+                    pass
 
 
 except Exception as error:

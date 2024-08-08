@@ -33,3 +33,7 @@ keyboard_notes.add_line()
 keyboard_notes.add_button('Получить свои заметки', color=VkKeyboardColor.PRIMARY)
 keyboard_notes.add_line()
 keyboard_notes.add_button('Удалить заметки', color=VkKeyboardColor.NEGATIVE)
+
+
+keyboard_stopped_input = VkKeyboard(one_time=False)
+keyboard_stopped_input.add_button('Остановить ввод', color=VkKeyboardColor.NEGATIVE)

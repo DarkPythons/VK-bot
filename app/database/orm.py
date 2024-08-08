@@ -67,8 +67,14 @@ class UsersOrm:
         result = self.session.execute(query)
         return result.scalars().all()
 
-    def update_status_mailing_after(self, *, user_id:int, status:bool):
+    def update_status_mailing_after(self, user_id:int, *,status:bool):
         """Обновление статуса супер пользователя после рассылки"""
         query = update(Users).values(in_process=status, in_process_mailing=status).where(Users.vk_id == user_id)
+        self.session.execute(query)
+        self.session.commit()
+
+    def update_status_add_notes(self, user_id, *, status:bool):
+        """Обновление статуса пользователя на ввод заметок"""
+        query = update(Users).values(in_process=status, in_process_create_note=status).where(Users.vk_id == user_id)
         self.session.execute(query)
         self.session.commit()
