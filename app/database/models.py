@@ -38,4 +38,4 @@ class Notes(Base):
     id:  Mapped[int] = mapped_column(primary_key=True, nullable=False)
     text_note: Mapped[str] = mapped_column()
 
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.vk_id', ondelete='CASCADE'), nullable=False)
+    f_user_id: Mapped[int] = mapped_column(ForeignKey('user.vk_id', ondelete='CASCADE'), nullable=False)

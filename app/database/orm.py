@@ -1,5 +1,5 @@
 from sqlalchemy import select, insert, update, delete
-from.models import Users
+from.models import Users, Notes
 from sqlalchemy.orm import Session
 
 class UsersOrm:
@@ -77,4 +77,17 @@ class UsersOrm:
         """Обновление статуса пользователя на ввод заметок"""
         query = update(Users).values(in_process=status, in_process_create_note=status).where(Users.vk_id == user_id)
         self.session.execute(query)
+        self.session.commit()
+
+
+class NotesOrm:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def add_note_user_orm(self, vk_user_id, text_note):
+        object_note = Notes(
+            text_note=text_note,
+            f_user_id=vk_user_id
+        )
+        self.session.add(object_note)
         self.session.commit()
