@@ -1,5 +1,5 @@
 from utils import get_info_from_wiki, info_from_api_weather,info_from_api_numbers, SendingMessageUser
-from text import group_remined_text,succes_added_note_text,bad_added_note_text
+from text import group_remined_text,succes_added_note_text,bad_added_note_text,notes_start_delete_text
 from database.orm import NotesOrm
 
 
@@ -37,5 +37,38 @@ def handler_writing_notes(*, send_func:SendingMessageUser, sender_id:int, sendin
         note_orm.add_note_user_orm(sender_id, text_note)
         send_func.write_message(sender_id, succes_added_note_text)
     except Exception as error:
-        print(error)
         send_func.write_message(sender_id, bad_added_note_text)
+
+
+def confirm_response(list_text_notes_user, basing_text:str=None):
+    count = 1
+    confirm_string = """"""
+    if basing_text:
+        confirm_string += basing_text
+    for one_text in list_text_notes_user:
+        confirm_string += f'{count}. {one_text}.\n'
+        count+=1
+    return confirm_string
+
+def handler_show_notes(*, send_func:SendingMessageUser, sender_id:int,note_orm:NotesOrm):
+    """Обработчик запроса на получение всех заметок человека"""
+    try:
+        list_notes_user = note_orm.get_user_notes_orm(sender_id)
+        confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
+        send_func.write_notes_base_message(sender_id,confirm_text_sending)
+    except Exception as error:
+        pass
+
+def handler_start_deleted_notes(*, send_func: SendingMessageUser, sender_id, note_orm:NotesOrm,user_orm):
+    """Обработчик запроса, когда пользователь хочет удалить свои заметки"""
+    list_notes_user = note_orm.get_user_notes_orm(sender_id)
+    if len(list_notes_user) > 0:
+        send_func.write_message(sender_id, notes_start_delete_text)
+        confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
+        send_func.write_notes_and_stopped_key(sender_id, confirm_text_sending)
+        user_orm.update_status_delete_notes(sender_id, status=True)
+    else:
+        send_func.write_notes_base_message(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на клавиатуре")
+
+def handler_deleted_notes(self, *,send_func,sender_id:int,sending_text:str):
+    

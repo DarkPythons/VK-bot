@@ -79,6 +79,11 @@ class UsersOrm:
         self.session.execute(query)
         self.session.commit()
 
+    def update_status_delete_notes(self, user_id, *, status:bool):
+        """Обновление статуса пользователя на ввод чисел для удаления заметок"""
+        query = update(Users).values(in_process=status, in_process_delete_note=status).where(Users.vk_id == user_id)
+        self.session.execute(query)
+        self.session.commit()
 
 class NotesOrm:
     def __init__(self, session: Session):
@@ -91,3 +96,9 @@ class NotesOrm:
         )
         self.session.add(object_note)
         self.session.commit()
+
+    def get_user_notes_orm(self, vk_user_id):
+        query = select(Notes.text_note).where(Notes.f_user_id == vk_user_id)
+        result = self.session.execute(query)
+        return result.scalars().all()
+

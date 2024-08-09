@@ -9,10 +9,16 @@ from text import (
     wiki_start_text,exit_all_process_text,no_exit_text,
     weather_start_text,number_start_text,mailing_start_text,
     after_mailing_text,notes_start_text,notes_start_add_text,
-    stopped_write_or_delete_text,no_input_message_text
+    stopped_write_or_delete_text,no_input_message_text,
+    limit_warning_text
     ) #type: ignore
 from database.orm import UsersOrm, NotesOrm
-from handlers import handler_wiki, handler_weather, handler_number,handler_mailing,handler_writing_notes
+from handlers import (
+    handler_wiki, handler_weather, handler_number,
+    handler_mailing,handler_writing_notes,
+    handler_show_notes,handler_start_deleted_notes,
+    handler_deleted_notes
+)
 
 
 user_orm = UsersOrm(get_session())
@@ -76,13 +82,25 @@ try:
                         send_func.write_message_hello(sender_id, 'У вас нет прав на использование этой команды.')
                 elif sending_text.lower() in ['/notes', 'заметки']:
                     """Если пользователь захотел получить информацию о заметках"""
-                    send_func.write_notes_start_message(sender_id, notes_start_text)
+                    send_func.write_notes_base_message(sender_id, notes_start_text)
 
                 elif sending_text.lower() in ['добавить заметку', '/add_notes']:
                     """Если пользователь захотел добавить заметку"""
-                    send_func.write_notes_add_message(sender_id, notes_start_add_text)
+                    send_func.write_notes_and_stopped_key(sender_id, notes_start_add_text)
                     user_orm.update_status_add_notes(sender_id, status=True)
 
+                elif sending_text.lower() in ['получить свои заметки', '/show_notes']:
+                    """Если пользователь захотел получить свои заметки"""
+                    handler_show_notes(send_func=send_func, sender_id=sender_id, note_orm=note_orm)
+                
+                elif sending_text.lower() in ['удалить заметки', '/delete_notes']:
+                    """Если пользователь захотел удалить свои заметки"""
+                    handler_start_deleted_notes(
+                        send_func=send_func,
+                        sender_id=sender_id,
+                        note_orm=note_orm,
+                        user_orm=user_orm,)
+                    
                 elif sending_text.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
                     send_func.write_message_all_exit(sender_id, no_exit_text)
@@ -105,7 +123,7 @@ try:
                 elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
                     """Если пользователь остановил ввод на добавление или удаление заметок"""
                     user_orm.update_full_process(sender_id, full_status=False)
-                    send_func.write_notes_start_message(sender_id, stopped_write_or_delete_text)
+                    send_func.write_notes_base_message(sender_id, stopped_write_or_delete_text)
 
                 elif user_from_db.in_process_wiki:
                     """Если пользователь в запросе ввода Wiki данных"""
@@ -128,7 +146,16 @@ try:
 
                 elif user_from_db.in_process_create_note:
                     """Если пользователь ввел заметку, которую нужно добавить"""
-                    handler_writing_notes(send_func=send_func, sender_id=sender_id,sending_text=sending_text, note_orm=note_orm)
+                    if len(sending_text) <= 150:
+                        handler_writing_notes(send_func=send_func, sender_id=sender_id,sending_text=sending_text, note_orm=note_orm)
+                    else:
+                        send_func.write_message(sender_id, limit_warning_text)
+                
+                elif user_from_db.in_process_delete_note:
+                    """Если пользователь находится в режиме ожидания ввода номеров заметок
+                    для их удаления из базы.
+                    """
+                    handler_deleted_notes(send_func=send_func, sender_id=sender_id, sending_text=sending_text)
 
 
 except Exception as error:

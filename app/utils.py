@@ -71,14 +71,14 @@ class SendingMessageUser:
             'random_id' : get_random_id(), 'keyboard' : keyboard_mailing.get_keyboard()
         })
 
-    def write_notes_start_message(self, sender_id, message):
+    def write_notes_base_message(self, sender_id, message):
         """Отправка сообщения пользователю, который запросил заметки"""
         self.authorise.method('messages.send', {
             'user_id' : sender_id, 'message' : message,
             'random_id' : get_random_id(), 'keyboard' : keyboard_notes.get_keyboard()
         })
 
-    def write_notes_add_message(self, sender_id, message):
+    def write_notes_and_stopped_key(self, sender_id, message):
         """Отправка сообщения пользователю, про начало добавления заметок"""
         self.authorise.method('messages.send', {
             'user_id' : sender_id, 'message' : message,
