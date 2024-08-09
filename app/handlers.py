@@ -1,7 +1,9 @@
 from utils import get_info_from_wiki, info_from_api_weather,info_from_api_numbers, SendingMessageUser
-from text import group_remined_text,succes_added_note_text,bad_added_note_text,notes_start_delete_text
+from text import (group_remined_text,succes_added_note_text,
+    bad_added_note_text,notes_start_delete_text,
+    no_valid_del_notes_text,no_valid_number_notes)
 from database.orm import NotesOrm
-
+import re
 
 def handler_wiki(*, send_func, sender_id, sending_text):
     """Обработчик запроса к функции запроса Wiki, по ключевым словам"""
@@ -68,7 +70,20 @@ def handler_start_deleted_notes(*, send_func: SendingMessageUser, sender_id, not
         send_func.write_notes_and_stopped_key(sender_id, confirm_text_sending)
         user_orm.update_status_delete_notes(sender_id, status=True)
     else:
-        send_func.write_notes_base_message(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на клавиатуре")
+        send_func.write_notes_base_message(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на кнопках")
 
-def handler_deleted_notes(self, *,send_func,sender_id:int,sending_text:str):
-    
+def handler_deleted_notes(self, *,send_func,sender_id:int,sending_text:str,note_orm):
+    regular = re.search(r"\d([0-9]+)\d", sending_text)
+    if regular:
+        list_notes_user = note_orm.get_user_notes_orm(sender_id)
+        id_notes_del = int(sending_text)
+        if id_notes_del <= len(list_notes_user) and id_notes_del < 0:
+            #Добавление записи
+            pass
+
+        else:
+            #Если человек ввёл некоректное число для удаления заметки
+            send_func.write_message(sender_id, no_valid_number_notes)
+    else:
+        #Если человек ввел неправильный формат для удаления заметки
+        send_func.write_message(sender_id, no_valid_del_notes_text)

@@ -155,7 +155,7 @@ try:
                     """Если пользователь находится в режиме ожидания ввода номеров заметок
                     для их удаления из базы.
                     """
-                    handler_deleted_notes(send_func=send_func, sender_id=sender_id, sending_text=sending_text)
+                    handler_deleted_notes(send_func=send_func, sender_id=sender_id, sending_text=sending_text,note_orm=note_orm)
 
 
 except Exception as error:
