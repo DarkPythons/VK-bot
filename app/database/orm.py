@@ -102,3 +102,12 @@ class NotesOrm:
         result = self.session.execute(query)
         return result.scalars().all()
 
+    def delete_note_from_orm(self, *, note_id):
+        query = delete(Notes).where(Notes.id == note_id)
+        self.session.execute(query)
+        self.session.commit()
+
+    def get_user_full_notes_orm(self, *, user_id):
+        query = select(Notes.id, Notes.f_user_id).where(Notes.f_user_id == user_id)
+        result = self.session.execute(query)
+        return result.mappings().all()

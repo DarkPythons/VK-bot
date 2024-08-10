@@ -1,8 +1,8 @@
 from utils import get_info_from_wiki, info_from_api_weather,info_from_api_numbers, SendingMessageUser
 from text import (group_remined_text,succes_added_note_text,
     bad_added_note_text,notes_start_delete_text,
-    no_valid_del_notes_text,no_valid_number_notes)
-from database.orm import NotesOrm
+    no_valid_del_notes_text,no_valid_number_notes, notes_start_text)
+from database.orm import NotesOrm, UsersOrm
 import re
 
 def handler_wiki(*, send_func, sender_id, sending_text):
@@ -72,14 +72,18 @@ def handler_start_deleted_notes(*, send_func: SendingMessageUser, sender_id, not
     else:
         send_func.write_notes_base_message(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на кнопках")
 
-def handler_deleted_notes(self, *,send_func,sender_id:int,sending_text:str,note_orm):
-    regular = re.search(r"\d([0-9]+)\d", sending_text)
+def handler_deleted_notes(*,send_func:SendingMessageUser,sender_id:int,sending_text:str,note_orm:NotesOrm,user_orm:UsersOrm):
+    regular = re.search(r"\b([0-9]+)\b", sending_text)
     if regular:
-        list_notes_user = note_orm.get_user_notes_orm(sender_id)
-        id_notes_del = int(sending_text)
-        if id_notes_del <= len(list_notes_user) and id_notes_del < 0:
-            #Добавление записи
-            pass
+        list_notes_user = note_orm.get_user_full_notes_orm(user_id=sender_id)
+        id_notes_del = int(regular.group())
+        if id_notes_del <= len(list_notes_user) and id_notes_del > 0:
+            #Удаление записи
+            info_by_delete_note = list_notes_user[id_notes_del-1]
+            note_orm.delete_note_from_orm(note_id=info_by_delete_note['id'])
+            send_func.write_message(sender_id, f'Вы успешно удалили заметку с id: {id_notes_del}')
+            user_orm.update_status_delete_notes(sender_id, status=False)
+            send_func.write_notes_base_message(sender_id, notes_start_text)
 
         else:
             #Если человек ввёл некоректное число для удаления заметки
