@@ -1,9 +1,10 @@
+from vk_api import VkApi
 from vk_api.utils import get_random_id
+from vk_api.keyboard import VkKeyboard
 import wikipedia
 import requests
 import datetime
 
-from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit,keyboard_mailing,keyboard_notes,keyboard_stopped_input
 from text import Text
 from config import BaseConnectSettingsAPI
 
@@ -15,7 +16,7 @@ wikipedia.set_lang('ru')
 
 
 class SendingMessageUser:
-    def __init__(self, authorise):
+    def __init__(self, authorise:VkApi):
         self.authorise = authorise
 
     def write_message(self, sender_id, message):
@@ -33,58 +34,21 @@ class SendingMessageUser:
         except:
             return False
 
-    def write_message_hello(self, sender_id, message):
-        """Функция для приветствия пользователя + добавление кнопок"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, 'random_id' : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
+    def write_message_add_keyboard(self, 
+        sender_id:int, 
+        message:str, 
+        keyboard_obj:VkKeyboard,
+        ):
+        """Функция для отправки сообщения + добавления клавиатуры"""
+        self.authorise.method(
+        'messages.send', {
+            'user_id' : sender_id, 
+            'message' : message, 
+            'random_id' : get_random_id(), 
+            'keyboard' : keyboard_obj.get_keyboard()}
+        )
 
-    def write_message_help(self, sender_id, message):
-        """Функция для отображения помощи пользователю"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
 
-    def write_message_no_search(self, sender_id, message):
-        """Если пользователь ввел команду, которой пока нет у бота"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_no_command.get_keyboard()})
-
-    def write_message_all_exit(self, sender_id, message):
-        """Если пользователь ввел Отмена или /stop"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})
-    
-    #Объеденить три функции в одну (DRY)
-    def wiki_start_message(self, sender_id, message):
-        """Если пользователь захотел получить информацию из Wiki"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()})
-
-    def weather_start_message(self, sender_id, message):
-        """Если пользователь захотел получить информацию о погоде"""
-        self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()})
-
-    def number_start_message(self, sender_id, message):
-        """Если пользователь захотел получить интересный факт о числе"""
-        self.authorise.method('messages.send', {
-            'user_id' : sender_id, 'message' : message,
-            'random_id' : get_random_id(), 'keyboard' : keyboard_exit.get_keyboard()
-        })
-
-    def mailing_start_message(self, sender_id, message):
-        """Если супер пользователь захотел сделать рассылку"""
-        self.authorise.method('messages.send', {
-            'user_id' : sender_id, 'message' : message, 
-            'random_id' : get_random_id(), 'keyboard' : keyboard_mailing.get_keyboard()
-        })
-
-    def write_notes_base_message(self, sender_id, message):
-        """Отправка сообщения пользователю, который запросил заметки"""
-        self.authorise.method('messages.send', {
-            'user_id' : sender_id, 'message' : message,
-            'random_id' : get_random_id(), 'keyboard' : keyboard_notes.get_keyboard()
-        })
-
-    def write_notes_and_stopped_key(self, sender_id, message):
-        """Отправка сообщения пользователю, про начало добавления заметок"""
-        self.authorise.method('messages.send', {
-            'user_id' : sender_id, 'message' : message,
-            'random_id' : get_random_id(), 'keyboard' : keyboard_stopped_input.get_keyboard()
-        })
 
 def get_info_from_wiki(search_text):
     """Функци получения информации из Wiki по заданному слову"""

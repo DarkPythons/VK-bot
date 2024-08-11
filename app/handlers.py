@@ -3,9 +3,11 @@ from utils import (get_info_from_wiki, info_from_api_weather,
     confirm_response)
 import re
 
+from keyboards import KeyBoard
 from text import Text
 from database.orm import NotesOrm, UsersOrm
 
+keyboard = KeyBoard()
 text = Text()
 
 def handler_wiki(*, 
@@ -72,7 +74,7 @@ def handler_show_notes(*,
     try:
         list_notes_user = note_orm.get_user_notes_orm(sender_id)
         confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
-        send_func.write_notes_base_message(sender_id,confirm_text_sending)
+        send_func.write_message_add_keyboard(sender_id,confirm_text_sending, keyboard.keyboard_notes)
     except Exception as error:
         pass
 
@@ -87,10 +89,10 @@ def handler_start_deleted_notes(*,
     if len(list_notes_user) > 0:
         send_func.write_message(sender_id, text.notes_start_delete)
         confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
-        send_func.write_notes_and_stopped_key(sender_id, confirm_text_sending)
+        send_func.write_message_add_keyboard(sender_id, confirm_text_sending, keyboard.keyboard_stopped_input)
         user_orm.update_status_delete_notes(sender_id, status=True)
     else:
-        send_func.write_notes_base_message(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на кнопках")
+        send_func.write_message_add_keyboard(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на кнопках", keyboard.keyboard_notes)
 
 def handler_deleted_notes(*,
     send_func:SendingMessageUser,
@@ -110,7 +112,7 @@ def handler_deleted_notes(*,
             note_orm.delete_note_from_orm(note_id=info_by_delete_note['id'])
             send_func.write_message(sender_id, f'Вы успешно удалили заметку с id: {id_notes_del}')
             user_orm.update_status_delete_notes(sender_id, status=False)
-            send_func.write_notes_base_message(sender_id, text.notes_start)
+            send_func.write_message_add_keyboard(sender_id, text.notes_start, keyboard.keyboard_notes)
 
         else:
             #Если человек ввёл некоректное число для удаления заметки

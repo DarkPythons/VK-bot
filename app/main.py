@@ -2,6 +2,7 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 from config import BaseSettingApp
+from keyboards import KeyBoard
 from utils import SendingMessageUser
 from database.db import create_table,drop_table,get_session #type:ignore
 from text import Text
@@ -14,6 +15,8 @@ from handlers import (
 )
 
 text = Text()
+
+keyboard:KeyBoard = KeyBoard()
 
 user_orm = UsersOrm(get_session())
 note_orm = NotesOrm(get_session())
@@ -52,42 +55,75 @@ try:
                 if sending_text.lower() in ['старт', 'привет', 'hello', '/start']:
                     """Начальное приветствие пользователя"""
                     send_func.send_sticker(sender_id, 21)
-                    send_func.write_message_hello(sender_id, text.hello_user)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.hello_user, 
+                        keyboard.keyboard_hello
+                        )
                 
                 elif sending_text.lower() in ['/help', 'помощь', 'help']:
                     """Пользователь запросил помощи"""
-                    send_func.write_message_help(sender_id, text.help_user)
+                    send_func.write_message_add_keyboard(
+                        sender_id, 
+                        text.help_user, 
+                        keyboard.keyboard_hello
+                        )
 
                 elif sending_text.lower() in ['/wiki', 'вики', 'информация из wiki']:
                     """Пользователь запросил функцию поиска по вики"""
-                    send_func.wiki_start_message(sender_id,  text.wiki_start)
+                    send_func.write_message_add_keyboard(
+                        sender_id,  
+                        text.wiki_start, 
+                        keyboard.keyboard_exit
+                        )
                     user_orm.update_status_user_wiki(sender_id, status=True)
 
                 elif sending_text.lower() in ['/weathers', 'информация о погоде', '/weather', 'погода']:
                     """Пользователь запросил функцию поиска информации о погоде"""
-                    send_func.weather_start_message(sender_id, text.weather_start)
+                    send_func.write_message_add_keyboard(
+                        sender_id, 
+                        text.weather_start, 
+                        keyboard.keyboard_exit
+                        )
                     user_orm.update_status_user_weather(sender_id, status=True)
 
                 elif sending_text.lower() in ['/numbers', "получить интереный факт", '/number']:
                     """Если пользователь захотел получить интересный факт о числе"""
-                    send_func.number_start_message(sender_id, text.number_start)
+                    send_func.write_message_add_keyboard(
+                        sender_id, 
+                        text.number_start, 
+                        keyboard.keyboard_exit
+                        )
                     user_orm.update_status_user_number(sender_id, status=True)
 
                 elif sending_text.lower() == '/sends':
                     if user.is_superuser:
-                        """Если пользователь захотел сделать рассылку + является супер пользователем"""
-                        send_func.mailing_start_message(sender_id, text.mailing_start)
+                        """Если пользователь захотел сделать рассылку + 
+                        является супер пользователем"""
+                        send_func.write_message_add_keyboard(
+                            sender_id, 
+                            text.mailing_start, 
+                            keyboard.keyboard_mailing
+                            )
                         user_orm.update_status_mailing_before(sender_id, status=True)
                     else:
-                        send_func.write_message_hello(sender_id, 'У вас нет прав на использование этой команды.')
+                        send_func.write_message_add_keyboard(sender_id, 
+                        'У вас нет прав на использование этой команды.', 
+                        keyboard.keyboard_hello
+                        )
 
                 elif sending_text.lower() in ['/notes', 'заметки']:
                     """Если пользователь захотел получить информацию о заметках"""
-                    send_func.write_notes_base_message(sender_id, text.notes_start)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.notes_start, 
+                        keyboard.keyboard_notes
+                        )
 
                 elif sending_text.lower() in ['добавить заметку', '/add_notes']:
                     """Если пользователь захотел добавить заметку"""
-                    send_func.write_notes_and_stopped_key(sender_id, text.notes_start_add)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.notes_start_add, 
+                        keyboard.keyboard_stopped_input
+                        )
                     user_orm.update_status_add_notes(sender_id, status=True)
 
                 elif sending_text.lower() in ['получить свои заметки', '/show_notes']:
@@ -104,51 +140,84 @@ try:
                 
                 elif sending_text.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
-                    send_func.write_message_all_exit(sender_id, text.no_exit)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.no_exit,
+                        keyboard.keyboard_hello,
+                        )
 
                 elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
-                    """Если пользователь захотел выйти из режима ввода, когда он в нём не находился"""
+                    """Если пользователь захотел выйти из режима ввода,
+                    когда он в нём не находился"""
                     send_func.write_message(sender_id, text.no_input_message)
 
                 else:
                     """Если команда, которую ввел человек не найдена"""
-                    send_func.write_message_no_search(sender_id, text.no_command_search)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.no_command_search, 
+                        keyboard.keyboard_no_command
+                        )
 
             #Если пользователь находится в статусе запроса ввода
             else:
                 if sending_text.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, в любом режиме ввода"""
                     user_orm.update_full_process(sender_id, full_status=False)
-                    send_func.write_message_all_exit(sender_id, text.exit_all_process)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.exit_all_process,
+                        keyboard.keyboard_hello
+                        )
 
                 elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
                     """Если пользователь остановил ввод на добавление или удаление заметок"""
                     user_orm.update_full_process(sender_id, full_status=False)
-                    send_func.write_notes_base_message(sender_id, text.stopped_write_or_delete)
+                    send_func.write_message_add_keyboard(sender_id, 
+                        text.stopped_write_or_delete,
+                        keyboard.keyboard_notes
+                        )
 
                 elif user.in_process_wiki:
                     """Если пользователь в запросе ввода Wiki данных"""
-                    handler_wiki(send_func=send_func, sender_id=sender_id, sending_text=sending_text)
+                    handler_wiki(
+                        send_func=send_func, 
+                        sender_id=sender_id, 
+                        sending_text=sending_text
+                        )
                 
                 elif user.in_process_weather:
                     """Если пользователь в запросе ввода города для получения погоды"""
-                    handler_weather(send_func=send_func, sender_id=sender_id, sending_text=sending_text)
+                    handler_weather(
+                        send_func=send_func, 
+                        sender_id=sender_id, 
+                        sending_text=sending_text
+                        )
 
                 elif user.in_process_number:
                     """Если пользователь в запросе воода цифры для получения факта"""
-                    handler_number(send_func=send_func, sender_id=sender_id, sending_text=sending_text)
+                    handler_number(send_func=send_func, 
+                        sender_id=sender_id, 
+                        sending_text=sending_text
+                        )
 
                 elif user.in_process_mailing:
                     """Если пользователь ввел сообщение для рассылки"""
                     list_users_id = user_orm.get_list_vk_id()
-                    handler_mailing(send_func=send_func, sending_text=sending_text, list_user=list_users_id)
+                    handler_mailing(
+                        send_func=send_func, 
+                        sending_text=sending_text, 
+                        list_user=list_users_id
+                        )
                     user_orm.update_status_mailing_after(user_id=sender_id, status=False)
                     send_func.write_message(sender_id, text.after_mailing)
 
                 elif user.in_process_create_note:
                     """Если пользователь ввел заметку, которую нужно добавить"""
                     if len(sending_text) <= 150:
-                        handler_writing_notes(send_func=send_func, sender_id=sender_id,sending_text=sending_text, note_orm=note_orm)
+                        handler_writing_notes(
+                        send_func=send_func, 
+                        sender_id=sender_id,
+                        sending_text=sending_text, 
+                        note_orm=note_orm
+                        )
                     else:
                         send_func.write_message(sender_id, text.limit_warning)
                 
@@ -156,7 +225,13 @@ try:
                     """Если пользователь находится в режиме ожидания ввода номеров заметок
                     для их удаления из базы.
                     """
-                    handler_deleted_notes(send_func=send_func, sender_id=sender_id, sending_text=sending_text,note_orm=note_orm,user_orm=user_orm)
+                    handler_deleted_notes(
+                    send_func=send_func, 
+                    sender_id=sender_id, 
+                    sending_text=sending_text,
+                    note_orm=note_orm,
+                    user_orm=user_orm
+                    )
 
 
 except Exception as error:
