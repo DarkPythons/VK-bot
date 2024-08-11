@@ -14,6 +14,7 @@ from handlers import (
     handler_deleted_notes
 )
 
+
 text = Text()
 
 keyboard:KeyBoard = KeyBoard()
