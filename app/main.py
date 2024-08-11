@@ -159,79 +159,82 @@ try:
 
             #Если пользователь находится в статусе запроса ввода
             else:
-                if sending_text.lower() in ['/stop', 'отмена']:
-                    """Если пользователь нажал кнопку отмена, в любом режиме ввода"""
-                    user_orm.update_full_process(sender_id, full_status=False)
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.exit_all_process,
-                        keyboard.keyboard_hello
-                        )
+                try:
+                    if sending_text.lower() in ['/stop', 'отмена']:
+                        """Если пользователь нажал кнопку отмена, в любом режиме ввода"""
+                        user_orm.update_full_process(sender_id, full_status=False)
+                        send_func.write_message_add_keyboard(sender_id, 
+                            text.exit_all_process,
+                            keyboard.keyboard_hello
+                            )
 
-                elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
-                    """Если пользователь остановил ввод на добавление или удаление заметок"""
-                    user_orm.update_full_process(sender_id, full_status=False)
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.stopped_write_or_delete,
-                        keyboard.keyboard_notes
-                        )
+                    elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
+                        """Если пользователь остановил ввод на добавление или удаление заметок"""
+                        user_orm.update_full_process(sender_id, full_status=False)
+                        send_func.write_message_add_keyboard(sender_id, 
+                            text.stopped_write_or_delete,
+                            keyboard.keyboard_notes
+                            )
 
-                elif user.in_process_wiki:
-                    """Если пользователь в запросе ввода Wiki данных"""
-                    handler_wiki(
+                    elif user.in_process_wiki:
+                        """Если пользователь в запросе ввода Wiki данных"""
+                        handler_wiki(
+                            send_func=send_func, 
+                            sender_id=sender_id, 
+                            sending_text=sending_text
+                            )
+
+                    elif user.in_process_weather:
+                        """Если пользователь в запросе ввода города для получения погоды"""
+                        handler_weather(
+                            send_func=send_func, 
+                            sender_id=sender_id, 
+                            sending_text=sending_text
+                            )
+
+                    elif user.in_process_number:
+                        """Если пользователь в запросе воода цифры для получения факта"""
+                        handler_number(send_func=send_func, 
+                            sender_id=sender_id, 
+                            sending_text=sending_text
+                            )
+
+                    elif user.in_process_mailing:
+                        """Если пользователь ввел сообщение для рассылки"""
+                        list_users_id = user_orm.get_list_vk_id()
+                        handler_mailing(
+                            send_func=send_func, 
+                            sending_text=sending_text, 
+                            list_user=list_users_id
+                            )
+                        user_orm.update_status_mailing_after(user_id=sender_id, status=False)
+                        send_func.write_message(sender_id, text.after_mailing)
+
+                    elif user.in_process_create_note:
+                        """Если пользователь ввел заметку, которую нужно добавить"""
+                        if len(sending_text) <= 150:
+                            handler_writing_notes(
+                            send_func=send_func, 
+                            sender_id=sender_id,
+                            sending_text=sending_text, 
+                            note_orm=note_orm
+                            )
+                        else:
+                            send_func.write_message(sender_id, text.limit_warning)
+
+                    elif user.in_process_delete_note:
+                        """Если пользователь находится в режиме ожидания ввода номеров заметок
+                        для их удаления из базы.
+                        """
+                        handler_deleted_notes(
                         send_func=send_func, 
                         sender_id=sender_id, 
-                        sending_text=sending_text
+                        sending_text=sending_text,
+                        note_orm=note_orm,
+                        user_orm=user_orm
                         )
-                
-                elif user.in_process_weather:
-                    """Если пользователь в запросе ввода города для получения погоды"""
-                    handler_weather(
-                        send_func=send_func, 
-                        sender_id=sender_id, 
-                        sending_text=sending_text
-                        )
-
-                elif user.in_process_number:
-                    """Если пользователь в запросе воода цифры для получения факта"""
-                    handler_number(send_func=send_func, 
-                        sender_id=sender_id, 
-                        sending_text=sending_text
-                        )
-
-                elif user.in_process_mailing:
-                    """Если пользователь ввел сообщение для рассылки"""
-                    list_users_id = user_orm.get_list_vk_id()
-                    handler_mailing(
-                        send_func=send_func, 
-                        sending_text=sending_text, 
-                        list_user=list_users_id
-                        )
-                    user_orm.update_status_mailing_after(user_id=sender_id, status=False)
-                    send_func.write_message(sender_id, text.after_mailing)
-
-                elif user.in_process_create_note:
-                    """Если пользователь ввел заметку, которую нужно добавить"""
-                    if len(sending_text) <= 150:
-                        handler_writing_notes(
-                        send_func=send_func, 
-                        sender_id=sender_id,
-                        sending_text=sending_text, 
-                        note_orm=note_orm
-                        )
-                    else:
-                        send_func.write_message(sender_id, text.limit_warning)
-                
-                elif user.in_process_delete_note:
-                    """Если пользователь находится в режиме ожидания ввода номеров заметок
-                    для их удаления из базы.
-                    """
-                    handler_deleted_notes(
-                    send_func=send_func, 
-                    sender_id=sender_id, 
-                    sending_text=sending_text,
-                    note_orm=note_orm,
-                    user_orm=user_orm
-                    )
+                except Exception as error:
+                    send_func.write_message(sender_id, text.exceptionn_500)
 
 
 except Exception as error:

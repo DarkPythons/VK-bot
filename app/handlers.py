@@ -20,6 +20,7 @@ def handler_wiki(*,
     #Контент ответа будет зависеть от статуса ответа API
     send_func.write_message(sender_id, total_info_from_wiki['content'])
 
+
 def handler_weather(*, 
     send_func:SendingMessageUser,
     sender_id:int,
@@ -30,6 +31,7 @@ def handler_weather(*,
     #Контент ответа будет зависеть от статуса ответа API
     send_func.write_message(sender_id, info_from_weather['content'])
 
+
 def handler_number(*, 
     send_func:SendingMessageUser, 
     sender_id:int, 
@@ -39,6 +41,7 @@ def handler_number(*,
     info_from_numbers = info_from_api_numbers(sending_text)
     #Контент ответа будет зависеть от статуса ответа API
     send_func.write_message(sender_id, info_from_numbers['content'])
+
 
 def handler_mailing(*,
     send_func:SendingMessageUser,
@@ -71,13 +74,15 @@ def handler_show_notes(*,
     note_orm:NotesOrm
     ):
     """Обработчик запроса на получение всех заметок человека"""
-    try:
-        list_notes_user = note_orm.get_user_notes_orm(sender_id)
-        confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
-        send_func.write_message_add_keyboard(sender_id,confirm_text_sending, keyboard.keyboard_notes)
-    except Exception as error:
-        pass
 
+    list_notes_user = note_orm.get_user_notes_orm(sender_id)
+    confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
+    send_func.write_message_add_keyboard(
+        sender_id,
+        confirm_text_sending, 
+        keyboard.keyboard_notes
+    )
+    
 def handler_start_deleted_notes(*, 
     send_func: SendingMessageUser, 
     sender_id:int, 
@@ -89,10 +94,19 @@ def handler_start_deleted_notes(*,
     if len(list_notes_user) > 0:
         send_func.write_message(sender_id, text.notes_start_delete)
         confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
-        send_func.write_message_add_keyboard(sender_id, confirm_text_sending, keyboard.keyboard_stopped_input)
+        send_func.write_message_add_keyboard(
+            sender_id, 
+            confirm_text_sending, 
+            keyboard.keyboard_stopped_input
+            )
         user_orm.update_status_delete_notes(sender_id, status=True)
     else:
-        send_func.write_message_add_keyboard(sender_id, "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на кнопках", keyboard.keyboard_notes)
+        send_func.write_message_add_keyboard(
+            sender_id, 
+            "У вас пока нет заметок, нажмите кнопку 'Добавить заметку' на кнопках", 
+            keyboard.keyboard_notes
+        )
+
 
 def handler_deleted_notes(*,
     send_func:SendingMessageUser,
@@ -101,6 +115,7 @@ def handler_deleted_notes(*,
     note_orm:NotesOrm,
     user_orm:UsersOrm
     ):
+
     """Обработчик запроса на удаление заметки пользователем"""
     regular = re.search(r"\b([0-9]+)\b", sending_text)
     if regular:
@@ -110,10 +125,16 @@ def handler_deleted_notes(*,
             #Удаление записи
             info_by_delete_note = list_notes_user[id_notes_del-1]
             note_orm.delete_note_from_orm(note_id=info_by_delete_note['id'])
-            send_func.write_message(sender_id, f'Вы успешно удалили заметку с id: {id_notes_del}')
+            send_func.write_message(
+                sender_id, 
+                f'Вы успешно удалили заметку с id: {id_notes_del}'
+                )
             user_orm.update_status_delete_notes(sender_id, status=False)
-            send_func.write_message_add_keyboard(sender_id, text.notes_start, keyboard.keyboard_notes)
-
+            send_func.write_message_add_keyboard(
+                sender_id, 
+                text.notes_start, 
+                keyboard.keyboard_notes
+                )
         else:
             #Если человек ввёл некоректное число для удаления заметки
             send_func.write_message(sender_id, text.no_valid_number_notes)
