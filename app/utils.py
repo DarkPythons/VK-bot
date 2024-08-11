@@ -4,10 +4,12 @@ import requests
 import datetime
 
 from keyboards import keyboard_hello,keyboard_no_command,keyboard_exit,keyboard_mailing,keyboard_notes,keyboard_stopped_input
-from text import code_smile, no_found_city_text, exceptionn_500_text,user_write_no_number_text
+from text import Text
 from config import BaseConnectSettingsAPI
 
 connect_setting = BaseConnectSettingsAPI()
+
+text = Text()
 
 wikipedia.set_lang('ru')
 
@@ -103,8 +105,8 @@ def get_info_from_wiki(search_text):
 
 def smile_for_weather(weather_street):
     """В зависимости от уличной погоды функция выбирает смайлик"""
-    if weather_street in code_smile:
-        return code_smile[weather_street]
+    if weather_street in text.code_smile:
+        return text.code_smile[weather_street]
     else:
         return "Смайлика нет :("
     
@@ -137,10 +139,10 @@ def info_from_api_weather(search_text):
             text_response = get_full_response_text(response.json())
             return {'status' : 200, 'content' : text_response}
         elif response.status_code == 404:
-            return {'status' : 404, 'content' : no_found_city_text}
-        return {"status" : 500, 'content' : exceptionn_500_text}
+            return {'status' : 404, 'content' : text.no_found_city}
+        return {"status" : 500, 'content' : text.exceptionn_500}
     except Exception as Error:
-        return {"status" : 500, 'content' : exceptionn_500_text}
+        return {"status" : 500, 'content' : text.exceptionn_500}
 
 
 def info_from_api_numbers(search_text: str):
@@ -153,6 +155,18 @@ def info_from_api_numbers(search_text: str):
             content_response = response.text
             return {'status' : 200, 'content' : content_response}
         elif response.status_code == 404:
-            return {'status' : 404, 'content' : user_write_no_number_text}
+            return {'status' : 404, 'content' : text.user_write_no_number}
     except Exception as Error:
-        return {'status' : 500, 'content' : exceptionn_500_text}
+        return {'status' : 500, 'content' : text.exceptionn_500}
+
+
+def confirm_response(list_text_notes_user, basing_text:str=None):
+    """Функция для создания текста из массива заметок пользователя"""
+    count = 1
+    confirm_string = """"""
+    if basing_text:
+        confirm_string += basing_text
+    for one_text in list_text_notes_user:
+        confirm_string += f'{count}. {one_text}.\n'
+        count+=1
+    return confirm_string
