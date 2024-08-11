@@ -47,20 +47,24 @@ try:
                 user_from_orm = user_orm.get_user_from_db(sender_id)
             user = user_from_orm['Users']
 
-            #Если пользователь не в ожидании запроса ввода
+            """Если пользователь не в ожидании запроса ввода"""
             if not user.in_process:
                 if sending_text.lower() in ['старт', 'привет', 'hello', '/start']:
+                    """Начальное приветствие пользователя"""
                     send_func.send_sticker(sender_id, 21)
                     send_func.write_message_hello(sender_id, text.hello_user)
                 
                 elif sending_text.lower() in ['/help', 'помощь', 'help']:
+                    """Пользователь запросил помощи"""
                     send_func.write_message_help(sender_id, text.help_user)
 
                 elif sending_text.lower() in ['/wiki', 'вики', 'информация из wiki']:
+                    """Пользователь запросил функцию поиска по вики"""
                     send_func.wiki_start_message(sender_id,  text.wiki_start)
                     user_orm.update_status_user_wiki(sender_id, status=True)
 
                 elif sending_text.lower() in ['/weathers', 'информация о погоде', '/weather', 'погода']:
+                    """Пользователь запросил функцию поиска информации о погоде"""
                     send_func.weather_start_message(sender_id, text.weather_start)
                     user_orm.update_status_user_weather(sender_id, status=True)
 
@@ -76,6 +80,7 @@ try:
                         user_orm.update_status_mailing_before(sender_id, status=True)
                     else:
                         send_func.write_message_hello(sender_id, 'У вас нет прав на использование этой команды.')
+
                 elif sending_text.lower() in ['/notes', 'заметки']:
                     """Если пользователь захотел получить информацию о заметках"""
                     send_func.write_notes_base_message(sender_id, text.notes_start)
@@ -96,7 +101,7 @@ try:
                         sender_id=sender_id,
                         note_orm=note_orm,
                         user_orm=user_orm,)
-                    
+                
                 elif sending_text.lower() in ['/stop', 'отмена']:
                     """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
                     send_func.write_message_all_exit(sender_id, text.no_exit)

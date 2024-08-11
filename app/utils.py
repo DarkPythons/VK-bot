@@ -45,7 +45,6 @@ class SendingMessageUser:
         """Если пользователь ввел команду, которой пока нет у бота"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_no_command.get_keyboard()})
 
-
     def write_message_all_exit(self, sender_id, message):
         """Если пользователь ввел Отмена или /stop"""
         self.authorise.method('messages.send', {'user_id' : sender_id, 'message' : message, "random_id" : get_random_id(), 'keyboard' : keyboard_hello.get_keyboard()})

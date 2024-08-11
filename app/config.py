@@ -5,6 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
 class BaseConfigSettingInFile(BaseSettings):
+    """Базовая информация об окружении"""
     model_config = SettingsConfigDict(
         env_file='.env',
         env_file_encoding='utf-8',
@@ -13,10 +14,12 @@ class BaseConfigSettingInFile(BaseSettings):
     )
 
 class BaseSettingsDataBase(BaseConfigSettingInFile):
+    """Настройки для базы данных (sqlite)"""
     DB_URL:str = Field(min_length=3, max_length=100, default='database.db')
     ECHO_QUERY_SQL:bool = Field(default=False)
 
 class BaseSettingApp(BaseConfigSettingInFile):
+    """Настройки для самого бота и приложения"""
     TOKEN_BOT:str = Field(min_length=5, max_length=500)
     PROGRAM_IN_DEBUG:bool = Field(default=True)
     
@@ -28,6 +31,7 @@ headers = {
     }
 
 class BaseConnectSettingsAPI(BaseConfigSettingInFile):
+    """Настройка подключения к удаленному API погоды"""
     headers:dict = Field(default=headers)
     #Этот токен можно получить, пройдя легкую регистрацию: https://openweathermap.org/
     TOKEN_WEATHER:str = Field(min_length=3, max_length=400)
