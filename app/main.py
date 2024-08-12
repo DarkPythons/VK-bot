@@ -1,12 +1,13 @@
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
+from text import Text
 from config import BaseSettingApp
 from keyboards import KeyBoard
 from utils import SendingMessageUser
 from database.db import create_table,drop_table,get_session #type:ignore
-from text import Text
 from database.orm import UsersOrm, NotesOrm
+from logs.baselog import logs, logs_except
 from handlers import (
     handler_wiki, handler_weather, handler_number,
     handler_mailing,handler_writing_notes,
@@ -16,7 +17,6 @@ from handlers import (
 
 
 text = Text()
-
 keyboard:KeyBoard = KeyBoard()
 
 user_orm = UsersOrm(get_session())
@@ -31,17 +31,21 @@ send_func = SendingMessageUser(authorise)
 
 try:
     create_table()
+    logs.warning('База данных была создана')
 except Exception as Error:
-    print('Ошибка создания базы данных: ' + str(Error))
+    logs.error('Ошибка при создании базы данных: %s' % (Error))
 
 try:
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
             sending_text = event.text
             sender_id = event.user_id
+            logs.info('Пользователь с id %s отправил сообщение %s' %       
+                        (sender_id, sending_text))
             #Остановка программы (только если бот в режиме разработки)
             if sending_text == '/debug_stop':
                 if setting_app.PROGRAM_IN_DEBUG:
+                    logs.warning('Произошло экстренное выключение приложения')
                     raise Exception
 
             """Получение пользователя из базы данных и создание его, если такого ещё нет"""
@@ -49,6 +53,7 @@ try:
             if not user_from_orm:
                 user_orm.create_user_in_db(sender_id)
                 user_from_orm = user_orm.get_user_from_db(sender_id)
+                logs.info('Пользователь с id %s добавлен в базу' % (sender_id))
             user = user_from_orm['Users']
 
             """Если пользователь не в ожидании запроса ввода"""
@@ -147,6 +152,7 @@ try:
                             text.no_command_search, keyboard.keyboard_no_command
                             )
                 except Exception as Error:
+                    logs_except.error('Ошибка при выборе функции: %s' % (Error))
                     send_func.write_message(sender_id, text.exceptionn_500)
             #Если пользователь находится в статусе запроса ввода
             else:
@@ -223,12 +229,15 @@ try:
                         user_orm=user_orm
                         )
                 except Exception as error:
+                    logs_except.error('Ошибка при обработке запроса: %s' % (Error))
                     send_func.write_message(sender_id, text.exceptionn_500)
 
 
-except Exception as error:
-    print('Ошибка приложения: ' + str(error))
+except Exception as Error:
+    logs_except.critical('Приложение выключено, ошибка: %s' % (Error))
 finally:
     """Удаление таблиц базы данных, если приложение в режиме разработки"""
+    logs.info('Приложение выключено')
     if setting_app.PROGRAM_IN_DEBUG:
+        logs.warning('База данных была удалена')
         drop_table()
