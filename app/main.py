@@ -53,111 +53,101 @@ try:
 
             """Если пользователь не в ожидании запроса ввода"""
             if not user.in_process:
-                if sending_text.lower() in ['старт', 'привет', 'hello', '/start']:
-                    """Начальное приветствие пользователя"""
-                    send_func.send_sticker(sender_id, 21)
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.hello_user, 
-                        keyboard.keyboard_hello
-                        )
-                
-                elif sending_text.lower() in ['/help', 'помощь', 'help']:
-                    """Пользователь запросил помощи"""
-                    send_func.write_message_add_keyboard(
-                        sender_id, 
-                        text.help_user, 
-                        keyboard.keyboard_hello
-                        )
-
-                elif sending_text.lower() in ['/wiki', 'вики', 'информация из wiki']:
-                    """Пользователь запросил функцию поиска по вики"""
-                    send_func.write_message_add_keyboard(
-                        sender_id,  
-                        text.wiki_start, 
-                        keyboard.keyboard_exit
-                        )
-                    user_orm.update_status_user_wiki(sender_id, status=True)
-
-                elif sending_text.lower() in ['/weathers', 'информация о погоде', '/weather', 'погода']:
-                    """Пользователь запросил функцию поиска информации о погоде"""
-                    send_func.write_message_add_keyboard(
-                        sender_id, 
-                        text.weather_start, 
-                        keyboard.keyboard_exit
-                        )
-                    user_orm.update_status_user_weather(sender_id, status=True)
-
-                elif sending_text.lower() in ['/numbers', "получить интереный факт", '/number']:
-                    """Если пользователь захотел получить интересный факт о числе"""
-                    send_func.write_message_add_keyboard(
-                        sender_id, 
-                        text.number_start, 
-                        keyboard.keyboard_exit
-                        )
-                    user_orm.update_status_user_number(sender_id, status=True)
-
-                elif sending_text.lower() == '/sends':
-                    if user.is_superuser:
-                        """Если пользователь захотел сделать рассылку + 
-                        является супер пользователем"""
-                        send_func.write_message_add_keyboard(
-                            sender_id, 
-                            text.mailing_start, 
-                            keyboard.keyboard_mailing
-                            )
-                        user_orm.update_status_mailing_before(sender_id, status=True)
-                    else:
+                try:
+                    if sending_text.lower() in ['старт', 'привет', 'hello', '/start']:
+                        """Начальное приветствие пользователя"""
+                        send_func.send_sticker(sender_id, 21)
                         send_func.write_message_add_keyboard(sender_id, 
-                        'У вас нет прав на использование этой команды.', 
-                        keyboard.keyboard_hello
-                        )
+                            text.hello_user, 
+                            keyboard.keyboard_hello
+                            )
+                    
+                    elif sending_text.lower() in ['/help', 'помощь', 'help']:
+                        """Пользователь запросил помощи"""
+                        send_func.write_message_add_keyboard(
+                            sender_id, text.help_user, keyboard.keyboard_hello
+                            )
 
-                elif sending_text.lower() in ['/notes', 'заметки']:
-                    """Если пользователь захотел получить информацию о заметках"""
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.notes_start, 
-                        keyboard.keyboard_notes
-                        )
+                    elif sending_text.lower() in ['/wiki', 'вики', 'информация из wiki']:
+                        """Пользователь запросил функцию поиска по вики"""
+                        send_func.write_message_add_keyboard(
+                            sender_id, text.wiki_start, keyboard.keyboard_exit
+                            )
+                        user_orm.update_status_user_wiki(sender_id, status=True)
 
-                elif sending_text.lower() in ['добавить заметку', '/add_notes']:
-                    """Если пользователь захотел добавить заметку"""
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.notes_start_add, 
-                        keyboard.keyboard_stopped_input
-                        )
-                    user_orm.update_status_add_notes(sender_id, status=True)
+                    elif sending_text.lower() in ['/weathers', 'информация о погоде', 
+                                                '/weather', 'погода']:
+                        """Пользователь запросил функцию поиска информации о погоде"""
+                        send_func.write_message_add_keyboard(
+                            sender_id, text.weather_start, keyboard.keyboard_exit
+                            )
+                        user_orm.update_status_user_weather(sender_id, status=True)
 
-                elif sending_text.lower() in ['получить свои заметки', '/show_notes']:
-                    """Если пользователь захотел получить свои заметки"""
-                    handler_show_notes(send_func=send_func, sender_id=sender_id, note_orm=note_orm)
-                
-                elif sending_text.lower() in ['удалить заметки', '/delete_notes']:
-                    """Если пользователь захотел удалить свои заметки"""
-                    handler_start_deleted_notes(
-                        send_func=send_func,
-                        sender_id=sender_id,
-                        note_orm=note_orm,
-                        user_orm=user_orm,)
-                
-                elif sending_text.lower() in ['/stop', 'отмена']:
-                    """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.no_exit,
-                        keyboard.keyboard_hello,
-                        )
+                    elif sending_text.lower() in ['/numbers', "получить интереный факт", '/number']:
+                        """Если пользователь захотел получить интересный факт о числе"""
+                        send_func.write_message_add_keyboard(
+                            sender_id, text.number_start, keyboard.keyboard_exit
+                            )
+                        user_orm.update_status_user_number(sender_id, status=True)
 
-                elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
-                    """Если пользователь захотел выйти из режима ввода,
-                    когда он в нём не находился"""
-                    send_func.write_message(sender_id, text.no_input_message)
+                    elif sending_text.lower() == '/sends':
+                        if user.is_superuser:
+                            """Если пользователь захотел сделать рассылку + 
+                            является супер пользователем"""
+                            send_func.write_message_add_keyboard(
+                                sender_id, text.mailing_start, keyboard.keyboard_mailing
+                                )
+                            user_orm.update_status_mailing_before(sender_id, status=True)
+                        else:
+                            send_func.write_message_add_keyboard(sender_id, 
+                            'У вас нет прав на использование этой команды.', 
+                            keyboard.keyboard_hello
+                            )
 
-                else:
-                    """Если команда, которую ввел человек не найдена"""
-                    send_func.write_message_add_keyboard(sender_id, 
-                        text.no_command_search, 
-                        keyboard.keyboard_no_command
-                        )
+                    elif sending_text.lower() in ['/notes', 'заметки']:
+                        """Если пользователь захотел получить информацию о заметках"""
+                        send_func.write_message_add_keyboard(sender_id, 
+                            text.notes_start, keyboard.keyboard_notes
+                            )
 
+                    elif sending_text.lower() in ['добавить заметку', '/add_notes']:
+                        """Если пользователь захотел добавить заметку"""
+                        send_func.write_message_add_keyboard(sender_id, 
+                                text.notes_start_add, 
+                                keyboard.keyboard_stopped_input
+                            )
+                        user_orm.update_status_add_notes(sender_id, status=True)
+
+                    elif sending_text.lower() in ['получить свои заметки', '/show_notes']:
+                        """Если пользователь захотел получить свои заметки"""
+                        handler_show_notes(send_func=send_func, sender_id=sender_id, note_orm=note_orm)
+                    
+                    elif sending_text.lower() in ['удалить заметки', '/delete_notes']:
+                        """Если пользователь захотел удалить свои заметки"""
+                        handler_start_deleted_notes(
+                            send_func=send_func,
+                            sender_id=sender_id,
+                            note_orm=note_orm,
+                            user_orm=user_orm,)
+                    
+                    elif sending_text.lower() in ['/stop', 'отмена']:
+                        """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
+                        send_func.write_message_add_keyboard(sender_id, 
+                            text.no_exit, keyboard.keyboard_hello,
+                            )
+
+                    elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
+                        """Если пользователь захотел выйти из режима ввода,
+                        когда он в нём не находился"""
+                        send_func.write_message(sender_id, text.no_input_message)
+
+                    else:
+                        """Если команда, которую ввел человек не найдена"""
+                        send_func.write_message_add_keyboard(sender_id, 
+                            text.no_command_search, keyboard.keyboard_no_command
+                            )
+                except Exception as Error:
+                    send_func.write_message(sender_id, text.exceptionn_500)
             #Если пользователь находится в статусе запроса ввода
             else:
                 try:
@@ -165,16 +155,14 @@ try:
                         """Если пользователь нажал кнопку отмена, в любом режиме ввода"""
                         user_orm.update_full_process(sender_id, full_status=False)
                         send_func.write_message_add_keyboard(sender_id, 
-                            text.exit_all_process,
-                            keyboard.keyboard_hello
+                            text.exit_all_process, keyboard.keyboard_hello
                             )
 
                     elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
                         """Если пользователь остановил ввод на добавление или удаление заметок"""
                         user_orm.update_full_process(sender_id, full_status=False)
                         send_func.write_message_add_keyboard(sender_id, 
-                            text.stopped_write_or_delete,
-                            keyboard.keyboard_notes
+                            text.stopped_write_or_delete, keyboard.keyboard_notes
                             )
 
                     elif user.in_process_wiki:

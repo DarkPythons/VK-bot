@@ -35,9 +35,9 @@ class SendingMessageUser:
             return False
 
     def write_message_add_keyboard(self, 
-        sender_id:int, 
-        message:str, 
-        keyboard_obj:VkKeyboard,
+            sender_id:int, 
+            message:str, 
+            keyboard_obj:VkKeyboard,
         ):
         """Функция для отправки сообщения + добавления клавиатуры"""
         self.authorise.method(
@@ -61,8 +61,8 @@ def get_info_from_wiki(search_text):
         search_list = wikipedia.search(search_text, results=5)
         if len(search_list) > 0:   
             #Возвращаем строку возможныx значений, которые имел ввиду пользователь
-            return {'status' : 301, 'content' : "По вашему запросу было найдено несколько возможных\
-значений, уточните ваш запрос: " + ", ".join(search_list)}
+            return {'status' : 301, 'content' : ("По вашему запросу было найдено несколько " 
+            "возможных значений, уточните ваш запрос: ") + ", ".join(search_list)}
         return {'status' : 404, 'content' : 'По вашему запросу нет совпадений.'}
         
 

@@ -11,9 +11,9 @@ keyboard = KeyBoard()
 text = Text()
 
 def handler_wiki(*, 
-    send_func: SendingMessageUser, 
-    sender_id:int, 
-    sending_text:str
+        send_func: SendingMessageUser, 
+        sender_id:int, 
+        sending_text:str
     ):
     """Обработчик запроса к функции запроса Wiki, по ключевым словам"""
     total_info_from_wiki = get_info_from_wiki(sending_text)
@@ -22,9 +22,9 @@ def handler_wiki(*,
 
 
 def handler_weather(*, 
-    send_func:SendingMessageUser,
-    sender_id:int,
-    sending_text:str
+        send_func:SendingMessageUser,
+        sender_id:int,
+        sending_text:str
     ):
     """Обработчик запроса к функции получения погоды, по названию города"""
     info_from_weather = info_from_api_weather(sending_text)
@@ -33,9 +33,9 @@ def handler_weather(*,
 
 
 def handler_number(*, 
-    send_func:SendingMessageUser, 
-    sender_id:int, 
-    sending_text:str
+        send_func:SendingMessageUser, 
+        sender_id:int, 
+        sending_text:str
     ):
     """Обработчик запроса к функции получения информации об числе"""
     info_from_numbers = info_from_api_numbers(sending_text)
@@ -44,9 +44,9 @@ def handler_number(*,
 
 
 def handler_mailing(*,
-    send_func:SendingMessageUser,
-    sending_text:str,
-    list_user:list
+        send_func:SendingMessageUser,
+        sending_text:str,
+        list_user:list
     ):
     """Обработчик запроса к рассылке определенного текста"""
     if sending_text.lower() == 'рассылка напоминания':
@@ -55,10 +55,10 @@ def handler_mailing(*,
         send_func.write_message(one_user_id, sending_text)
 
 def handler_writing_notes(*, 
-    send_func:SendingMessageUser, 
-    sender_id:int, 
-    sending_text:str,
-    note_orm:NotesOrm
+        send_func:SendingMessageUser, 
+        sender_id:int, 
+        sending_text:str,
+        note_orm:NotesOrm
     ):
     """Обработчик запроса на добавление заметки пользователем"""
     try:
@@ -69,9 +69,9 @@ def handler_writing_notes(*,
         send_func.write_message(sender_id, text.bad_added_note)
 
 def handler_show_notes(*, 
-    send_func:SendingMessageUser, 
-    sender_id:int,
-    note_orm:NotesOrm
+        send_func:SendingMessageUser, 
+        sender_id:int,
+        note_orm:NotesOrm
     ):
     """Обработчик запроса на получение всех заметок человека"""
 
@@ -84,10 +84,10 @@ def handler_show_notes(*,
     )
     
 def handler_start_deleted_notes(*, 
-    send_func: SendingMessageUser, 
-    sender_id:int, 
-    note_orm:NotesOrm,
-    user_orm:UsersOrm
+        send_func: SendingMessageUser, 
+        sender_id:int, 
+        note_orm:NotesOrm,
+        user_orm:UsersOrm
     ):
     """Обработчик запроса, когда пользователь хочет удалить свои заметки"""
     list_notes_user = note_orm.get_user_notes_orm(sender_id)
@@ -109,11 +109,11 @@ def handler_start_deleted_notes(*,
 
 
 def handler_deleted_notes(*,
-    send_func:SendingMessageUser,
-    sender_id:int,
-    sending_text:str,
-    note_orm:NotesOrm,
-    user_orm:UsersOrm
+        send_func:SendingMessageUser,
+        sender_id:int,
+        sending_text:str,
+        note_orm:NotesOrm,
+        user_orm:UsersOrm
     ):
 
     """Обработчик запроса на удаление заметки пользователем"""
