@@ -82,15 +82,15 @@ def get_full_response_text(json_response):
     time_day = time_sunset - time_sunrise
     itog_response = f"""
     Полученная информация:
-    Город: {json_response['name']}
-    Температура: {json_response['main']['temp']} °C
-    Влажность: {json_response['main']['humidity']} %
-    Давление: {json_response['main']['pressure']} мм рт. ст.
-    Скорость ветра: {json_response['wind']['speed']} м/с
-    Время восхода солнца: {time_sunrise}
-    Время заказа солнца: {time_sunset}
-    Продолжительность дня: {time_day}
-    Погода на улице: {smile_for_weather(json_response['weather'][0]['main'])}
+Город: {json_response['name']}
+Температура: {json_response['main']['temp']} °C
+Влажность: {json_response['main']['humidity']} %
+Давление: {json_response['main']['pressure']} мм рт. ст.
+Скорость ветра: {json_response['wind']['speed']} м/с
+Время восхода солнца: {time_sunrise.time()}
+Время заказа солнца: {time_sunset.time()}
+Продолжительность дня: {time_day}
+Погода на улице: {smile_for_weather(json_response['weather'][0]['main'])}
     """
     return itog_response
 
