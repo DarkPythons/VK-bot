@@ -1,12 +1,13 @@
-from vk_api import VkApi
-from vk_api.utils import get_random_id
-from vk_api.keyboard import VkKeyboard
-import wikipedia
 import requests
 import datetime
 
+import wikipedia
+from vk_api import VkApi
+from vk_api.utils import get_random_id
+from vk_api.keyboard import VkKeyboard
 from text import Text
 from config import BaseConnectSettingsAPI
+from logs.baselog import logs, logs_except
 
 connect_setting = BaseConnectSettingsAPI()
 
@@ -31,7 +32,8 @@ class SendingMessageUser:
         try:
             self.authorise.method('messages.send', {'user_id' : sender_id, 'sticker_id' : sticker_number, 'random_id' : get_random_id()})
             return True
-        except:
+        except Exception as Error:
+            logs_except.error('Пользователю не отправился стикер: %s' % (Error))
             return False
 
     def write_message_add_keyboard(self, 

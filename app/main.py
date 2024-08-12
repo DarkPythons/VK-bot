@@ -16,8 +16,8 @@ from handlers import (
 )
 
 
-text = Text()
 keyboard:KeyBoard = KeyBoard()
+text = Text()
 
 user_orm = UsersOrm(get_session())
 note_orm = NotesOrm(get_session())
@@ -35,12 +35,14 @@ try:
 except Exception as Error:
     logs.error('Ошибка при создании базы данных: %s' % (Error))
 
+logs.warning('Приложение запущено')
+
 try:
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
             sending_text = event.text
             sender_id = event.user_id
-            logs.info('Пользователь с id %s отправил сообщение %s' %       
+            logs.info('Пользователь с id %s отправил сообщение "%s"' %       
                         (sender_id, sending_text))
             #Остановка программы (только если бот в режиме разработки)
             if sending_text == '/debug_stop':
@@ -202,6 +204,7 @@ try:
                             sending_text=sending_text, 
                             list_user=list_users_id
                             )
+                        logs.warning('Произошла рассылка админом: %s' % (sender_id))
                         user_orm.update_status_mailing_after(user_id=sender_id, status=False)
                         send_func.write_message(sender_id, text.after_mailing)
 
@@ -241,3 +244,5 @@ finally:
     if setting_app.PROGRAM_IN_DEBUG:
         logs.warning('База данных была удалена')
         drop_table()
+
+logs.warning('Приложение выключено')

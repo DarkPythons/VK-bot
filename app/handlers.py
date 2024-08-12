@@ -1,11 +1,12 @@
-from utils import (get_info_from_wiki, info_from_api_weather,
-    info_from_api_numbers, SendingMessageUser, 
-    confirm_response)
 import re
 
 from keyboards import KeyBoard
 from text import Text
 from database.orm import NotesOrm, UsersOrm
+from logs.baselog import logs, logs_except
+from utils import (get_info_from_wiki, info_from_api_weather,
+    info_from_api_numbers, SendingMessageUser, 
+    confirm_response)
 
 keyboard = KeyBoard()
 text = Text()
@@ -17,6 +18,7 @@ def handler_wiki(*,
     ):
     """Обработчик запроса к функции запроса Wiki, по ключевым словам"""
     total_info_from_wiki = get_info_from_wiki(sending_text)
+    logs.info('%s обратился к api Wiki с запросом "%s"' % (sender_id, sending_text))
     #Контент ответа будет зависеть от статуса ответа API
     send_func.write_message(sender_id, total_info_from_wiki['content'])
 
@@ -28,6 +30,7 @@ def handler_weather(*,
     ):
     """Обработчик запроса к функции получения погоды, по названию города"""
     info_from_weather = info_from_api_weather(sending_text)
+    logs.info('%s обратился к api погоды с запросом %s' % (sender_id, sending_text))
     #Контент ответа будет зависеть от статуса ответа API
     send_func.write_message(sender_id, info_from_weather['content'])
 
@@ -39,6 +42,7 @@ def handler_number(*,
     ):
     """Обработчик запроса к функции получения информации об числе"""
     info_from_numbers = info_from_api_numbers(sending_text)
+    logs.info('%s обратился к api чисел с запросом %s' % (sender_id, sending_text))
     #Контент ответа будет зависеть от статуса ответа API
     send_func.write_message(sender_id, info_from_numbers['content'])
 
@@ -65,7 +69,9 @@ def handler_writing_notes(*,
         text_note = sending_text
         note_orm.add_note_user_orm(sender_id, text_note)
         send_func.write_message(sender_id, text.succes_added_note)
+        logs.info('%s написал заметку' % (sender_id))
     except Exception as error:
+        logs_except.error('Не удалось добавление заметки: %s' % (error))
         send_func.write_message(sender_id, text.bad_added_note)
 
 def handler_show_notes(*, 
@@ -74,7 +80,6 @@ def handler_show_notes(*,
         note_orm:NotesOrm
     ):
     """Обработчик запроса на получение всех заметок человека"""
-
     list_notes_user = note_orm.get_user_notes_orm(sender_id)
     confirm_text_sending = confirm_response(list_notes_user, "Список ваших заметок:\n")
     send_func.write_message_add_keyboard(
@@ -82,6 +87,7 @@ def handler_show_notes(*,
         confirm_text_sending, 
         keyboard.keyboard_notes
     )
+    logs.info('%s посмотрел свои заметки' % (sender_id))
     
 def handler_start_deleted_notes(*, 
         send_func: SendingMessageUser, 
@@ -100,6 +106,7 @@ def handler_start_deleted_notes(*,
             keyboard.keyboard_stopped_input
             )
         user_orm.update_status_delete_notes(sender_id, status=True)
+        logs.info('%s вошёл в режим удаления заметки' % (sender_id))
     else:
         send_func.write_message_add_keyboard(
             sender_id, 
@@ -124,7 +131,8 @@ def handler_deleted_notes(*,
         if id_notes_del <= len(list_notes_user) and id_notes_del > 0:
             #Удаление записи
             info_by_delete_note = list_notes_user[id_notes_del-1]
-            note_orm.delete_note_from_orm(note_id=info_by_delete_note['id'])
+            id_delete_note = info_by_delete_note['id']
+            note_orm.delete_note_from_orm(note_id=id_delete_note)
             send_func.write_message(
                 sender_id, 
                 f'Вы успешно удалили заметку с id: {id_notes_del}'
@@ -135,6 +143,7 @@ def handler_deleted_notes(*,
                 text.notes_start, 
                 keyboard.keyboard_notes
                 )
+            logs.info('%s удалил заметку %s из базы' % (sender_id, id_delete_note))
         else:
             #Если человек ввёл некоректное число для удаления заметки
             send_func.write_message(sender_id, text.no_valid_number_notes)
