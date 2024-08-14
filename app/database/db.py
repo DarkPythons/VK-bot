@@ -1,8 +1,8 @@
+"""Модуль с основными функциями для работы с бд"""
+
 from sqlalchemy.orm import Session
 
 from .models import Base, engine
-
-
 
 def create_table():
     """Функция создания всех таблиц по мета классу"""

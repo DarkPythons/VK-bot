@@ -1,3 +1,5 @@
+"""Модуль с моделями, которые будут превращены в таблицы базы данных"""
+
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import ForeignKey, create_engine, ForeignKey
 

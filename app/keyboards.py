@@ -1,3 +1,5 @@
+"""Модуль для конфигурации клавиатуры пользователя при ответах бота"""
+
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
 class KeyBoard:

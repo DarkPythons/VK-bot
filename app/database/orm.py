@@ -1,7 +1,11 @@
+"""Модуль, который содержит все вызовы и обращения к базе данных:
+Запись, чтение, обновление, удаление. (CRUD).
+"""
+
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.orm import Session
 
-from.models import Users, Notes
+from .models import Users, Notes
 
 class UsersOrm:
     """Класс для взаимодействия с таблицей пользователей в бд"""

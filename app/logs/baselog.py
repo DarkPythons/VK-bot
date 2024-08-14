@@ -1,3 +1,5 @@
+"""Модуль для настроек логирования приложения"""
+
 from loguru import logger
 
 class BaseLoggings:

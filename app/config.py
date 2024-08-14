@@ -1,3 +1,5 @@
+"""Модуль для подгрузки данных из env окружения"""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from dotenv import load_dotenv, find_dotenv

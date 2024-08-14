@@ -1,3 +1,5 @@
+"""Базовый модуль запуска приложения и обработка сообщений пользователя"""
+
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
@@ -100,7 +102,8 @@ try:
                     elif sending_text.lower() == '/sends':
                         if user.is_superuser:
                             """Если пользователь захотел сделать рассылку + 
-                            является супер пользователем"""
+                            является супер пользователем
+                            """
                             send_func.write_message_add_keyboard(
                                 sender_id, text.mailing_start, keyboard.keyboard_mailing
                                 )
@@ -138,14 +141,16 @@ try:
                             user_orm=user_orm,)
                     
                     elif sending_text.lower() in ['/stop', 'отмена']:
-                        """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода"""
+                        """Если пользователь нажал кнопку отмена, но он не находится в режиме ввода
+                        """
                         send_func.write_message_add_keyboard(sender_id, 
                             text.no_exit, keyboard.keyboard_hello,
                             )
 
                     elif sending_text.lower() in ['/stop_input', 'остановить ввод']:
                         """Если пользователь захотел выйти из режима ввода,
-                        когда он в нём не находился"""
+                        когда он в нём не находился
+                        """
                         send_func.write_message(sender_id, text.no_input_message)
 
                     else:
