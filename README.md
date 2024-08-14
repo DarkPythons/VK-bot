@@ -46,10 +46,8 @@ The bot is for the VK platform, it doesn't have too many functions, but still th
 <li>Go to your group for which you created the bot token, and write /start in your personal messages to launch the bot.</li>
 </ol>
 
-<h3>After writing to the bot, you should see the following text</h3>
-<img src="https://i.ibb.co/VLMRtzD/chrome-l-Rt-QZYo-SLE.png" alt="chrome-l-Rt-QZYo-SLE" border="0" width="800">
-<p>After scrolling down, you will encounter all kinds of operations</p>
-
+<h3>After writing to the bot, you should see the following text:</h3>
+<img src="https://i.ibb.co/bbmR6ys/start.jpg" alt="start message" border="0" width="300" height="500">
 
 
 ## Distribute
@@ -59,11 +57,11 @@ The bot is for the VK platform, it doesn't have too many functions, but still th
 - [VoblaSuperFish](https://github.com/VoblaSuperFish)
 
 ## License
-The PetProjectForRestoraunt project is distributed under the MIT license.
+The VkBot project is distributed under the MIT license.
 
-## Examples of API operation
+## Examples of dialogue with a bot
 <p>
-      <img src="https://i.ibb.co/HtjTxsX/example1.png" alt="example1" border="0" width="300" height="300">
-      <img src="https://i.ibb.co/zZv7MzN/example2.png" alt="example2" border="0" width="300" height="300">
-      <img src="https://i.ibb.co/G3zJBDB/example3.png" alt="example3" border="0" width="300" height="300">
+      <img src="https://i.ibb.co/LpZ5zQJ/fakt.jpg" alt="fakt" border="0" width="300" height="450">
+      <img src="https://i.ibb.co/jgDKzPJ/weather.jpg" alt="weather" border="0" width="300" height="450">
+      <img src="https://i.ibb.co/sF5CR0Z/notes.jpg" alt="notes" border="0" width="280" height="450">
 </p>
