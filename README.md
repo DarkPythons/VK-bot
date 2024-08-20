@@ -54,7 +54,7 @@ The bot is for the VK platform, it doesn't have too many functions, but still th
 
 ## Developers
 
-- [VoblaSuperFish](https://github.com/VoblaSuperFish)
+- [DarkPythons](https://github.com/DarkPythons)
 
 ## License
 The VkBot project is distributed under the MIT license.

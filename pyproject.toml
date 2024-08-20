@@ -1,14 +1,14 @@
 [tool.poetry]
-name = "VkBot"
+name = "VK-bot"
 version = "1.0.0"
 description = "A bot for vkontakte with different functions."
-authors = ["VoblaSuperFish author@mail"]
+authors = ["DarkPythons author@mail"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.12"
 vk-api = "11.9.9"
-pydantic-settings = "2.3.4"
+pydantic-settings = "^2.3.4"
 sqlalchemy = "2.0.31"
 wikipedia = "1.4.0"
 loguru = "0.7.2"
